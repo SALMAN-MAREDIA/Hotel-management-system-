@@ -1,0 +1,193 @@
+<%- include('partials/header') %>
+
+<!-- Page Header -->
+<section class="page-header">
+  <div class="container text-center text-white">
+    <h1 class="display-5 fw-bold">Book <span class="text-warning"><%= room.name %></span></h1>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb justify-content-center">
+        <li class="breadcrumb-item"><a href="/" class="text-warning text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item"><a href="/rooms" class="text-warning text-decoration-none">Rooms</a></li>
+        <li class="breadcrumb-item text-light active">Book Now</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5">
+      <!-- Room Summary -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow rounded-4 sticky-top" style="top:100px">
+          <div class="room-card-img" style="height:180px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;border-radius:1rem 1rem 0 0">
+            <div class="text-center text-white">
+              <i class="bi bi-door-open display-4"></i>
+              <p class="mt-2 mb-0 fw-bold"><%= room.category %></p>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <h5 class="fw-bold"><%= room.name %></h5>
+            <p class="text-muted small"><%= room.description.substring(0, 100) %>...</p>
+            <hr>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Rate per night:</span>
+              <span class="fw-bold text-warning">₹<%= room.price.toLocaleString('en-IN') %></span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Type:</span>
+              <span><%= room.type %></span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Category:</span>
+              <span><%= room.category %></span>
+            </div>
+            <hr>
+            <div id="price-summary" class="d-none">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Nights:</span>
+                <span id="nights-count" class="fw-bold">-</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="fw-bold fs-5">Total:</span>
+                <span id="total-price" class="fw-bold fs-5 text-warning">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Form -->
+      <div class="col-lg-8">
+        <div class="card border-0 shadow rounded-4">
+          <div class="card-body p-5">
+            <h3 class="fw-bold mb-4"><i class="bi bi-calendar-check text-warning me-2"></i>Reservation Details</h3>
+
+            <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+              <div class="alert alert-danger rounded-3">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Please fix the following errors:</strong>
+                <ul class="mb-0 mt-2">
+                  <% errors.forEach(error => { %>
+                    <li><%= error.msg %></li>
+                  <% }); %>
+                </ul>
+              </div>
+            <% } %>
+
+            <form action="/booking/<%= room.id %>" method="POST" id="booking-form" novalidate>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="guest_name" class="form-label fw-bold">Full Name <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-warning border-0"><i class="bi bi-person-fill text-dark"></i></span>
+                    <input type="text" class="form-control" id="guest_name" name="guest_name" placeholder="Your full name" required value="<%= typeof formData !== 'undefined' && formData.guest_name ? formData.guest_name : '' %>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="guest_email" class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-warning border-0"><i class="bi bi-envelope-fill text-dark"></i></span>
+                    <input type="email" class="form-control" id="guest_email" name="guest_email" placeholder="your@email.com" required value="<%= typeof formData !== 'undefined' && formData.guest_email ? formData.guest_email : '' %>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="guest_phone" class="form-label fw-bold">Phone <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-warning border-0"><i class="bi bi-phone-fill text-dark"></i></span>
+                    <input type="tel" class="form-control" id="guest_phone" name="guest_phone" placeholder="+91 XXXXX XXXXX" required value="<%= typeof formData !== 'undefined' && formData.guest_phone ? formData.guest_phone : '' %>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="guests" class="form-label fw-bold">Number of Guests <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-warning border-0"><i class="bi bi-people-fill text-dark"></i></span>
+                    <select class="form-select" id="guests" name="guests" required>
+                      <option value="1" <%= typeof formData !== 'undefined' && formData.guests == 1 ? 'selected' : '' %>>1 Guest</option>
+                      <option value="2" <%= typeof formData !== 'undefined' && formData.guests == 2 ? 'selected' : '' %>>2 Guests</option>
+                      <option value="3" <%= typeof formData !== 'undefined' && formData.guests == 3 ? 'selected' : '' %>>3 Guests</option>
+                      <option value="4" <%= typeof formData !== 'undefined' && formData.guests == 4 ? 'selected' : '' %>>4 Guests</option>
+                      <option value="5" <%= typeof formData !== 'undefined' && formData.guests == 5 ? 'selected' : '' %>>5 Guests</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="check_in" class="form-label fw-bold">Check-in Date <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-warning border-0"><i class="bi bi-calendar-event text-dark"></i></span>
+                    <input type="date" class="form-control" id="check_in" name="check_in" required value="<%= typeof formData !== 'undefined' && formData.check_in ? formData.check_in : '' %>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="check_out" class="form-label fw-bold">Check-out Date <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-warning border-0"><i class="bi bi-calendar-event text-dark"></i></span>
+                    <input type="date" class="form-control" id="check_out" name="check_out" required value="<%= typeof formData !== 'undefined' && formData.check_out ? formData.check_out : '' %>">
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label for="special_requests" class="form-label fw-bold">Special Requests</label>
+                  <textarea class="form-control" id="special_requests" name="special_requests" rows="3" placeholder="Any special requirements or requests..."><%= typeof formData !== 'undefined' && formData.special_requests ? formData.special_requests : '' %></textarea>
+                </div>
+
+                <div class="col-12">
+                  <hr>
+                  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                      <p class="mb-0 text-muted">By proceeding, you agree to our booking terms and conditions.</p>
+                    </div>
+                    <button type="submit" class="btn btn-warning btn-lg px-5 rounded-pill shadow" id="submit-booking">
+                      <i class="bi bi-credit-card me-2"></i>Proceed to Payment
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function() {
+    var roomPrice = <%= room.price %>;
+    var checkIn = document.getElementById('check_in');
+    var checkOut = document.getElementById('check_out');
+    var summary = document.getElementById('price-summary');
+    var nightsEl = document.getElementById('nights-count');
+    var totalEl = document.getElementById('total-price');
+
+    // Set minimum date to today
+    var today = new Date().toISOString().split('T')[0];
+    checkIn.setAttribute('min', today);
+    checkOut.setAttribute('min', today);
+
+    function calcPrice() {
+      if (checkIn.value && checkOut.value) {
+        var inDate = new Date(checkIn.value);
+        var outDate = new Date(checkOut.value);
+        if (outDate > inDate) {
+          var nights = Math.ceil((outDate - inDate) / (1000 * 60 * 60 * 24));
+          var total = roomPrice * nights;
+          nightsEl.textContent = nights;
+          totalEl.textContent = '\u20B9' + total.toLocaleString('en-IN');
+          summary.classList.remove('d-none');
+        } else {
+          summary.classList.add('d-none');
+        }
+      }
+    }
+
+    checkIn.addEventListener('change', function() {
+      var nextDay = new Date(checkIn.value);
+      nextDay.setDate(nextDay.getDate() + 1);
+      checkOut.setAttribute('min', nextDay.toISOString().split('T')[0]);
+      calcPrice();
+    });
+    checkOut.addEventListener('change', calcPrice);
+  })();
+</script>
+
+<%- include('partials/layout-end') %>
