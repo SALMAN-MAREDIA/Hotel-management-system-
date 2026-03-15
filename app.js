@@ -1,19 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
 const session = require('express-session');
 const helmet = require('helmet');
 const flash = require('connect-flash');
-const { initializeDatabase, closeDb } = require('./config/database');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
-
-// Initialize database
-initializeDatabase();
-
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, 'public', 'uploads');
-fs.mkdirSync(uploadsDir, { recursive: true });
 
 const app = express();
 
@@ -72,16 +63,5 @@ app.use('/booking', require('./routes/booking'));
 // Error handling
 app.use(notFound);
 app.use(errorHandler);
-
-// Graceful shutdown
-process.on('SIGINT', () => {
-  closeDb();
-  process.exit(0);
-});
-
-process.on('SIGTERM', () => {
-  closeDb();
-  process.exit(0);
-});
 
 module.exports = app;

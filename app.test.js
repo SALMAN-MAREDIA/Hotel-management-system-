@@ -1,89 +1,9 @@
 const request = require('supertest');
-const fs = require('fs');
-const path = require('path');
 
 // Set test environment
 process.env.SESSION_SECRET = 'test-secret';
 
-// Ensure db directory exists
-const dbDir = path.join(__dirname, 'db');
-fs.mkdirSync(dbDir, { recursive: true });
-
-// Use a separate test database
-const testDbPath = path.join(dbDir, 'test-hotel.db');
-if (fs.existsSync(testDbPath)) fs.unlinkSync(testDbPath);
-
-// Override database path for tests
-jest.mock('./config/database', () => {
-  const Database = require('better-sqlite3');
-  const mockDbPath = __dirname + '/db/test-hotel.db';
-  let db;
-
-  function getDb() {
-    if (!db) {
-      db = new Database(mockDbPath);
-      db.pragma('journal_mode = WAL');
-      db.pragma('foreign_keys = ON');
-    }
-    return db;
-  }
-
-  function initializeDatabase() {
-    const database = getDb();
-    database.exec(`
-      CREATE TABLE IF NOT EXISTS rooms (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, category TEXT NOT NULL,
-        type TEXT NOT NULL, price INTEGER NOT NULL, description TEXT, amenities TEXT,
-        image TEXT, available INTEGER DEFAULT 1, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
-      CREATE TABLE IF NOT EXISTS bookings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, room_id INTEGER NOT NULL, guest_name TEXT NOT NULL,
-        guest_email TEXT NOT NULL, guest_phone TEXT NOT NULL, check_in DATE NOT NULL,
-        check_out DATE NOT NULL, guests INTEGER DEFAULT 1, total_amount INTEGER NOT NULL,
-        payment_status TEXT DEFAULT 'pending', payment_id TEXT, booking_status TEXT DEFAULT 'pending',
-        special_requests TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (room_id) REFERENCES rooms(id)
-      );
-      CREATE TABLE IF NOT EXISTS contacts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT NOT NULL,
-        phone TEXT, subject TEXT NOT NULL, message TEXT NOT NULL, read INTEGER DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
-      CREATE TABLE IF NOT EXISTS gallery (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, image TEXT NOT NULL,
-        category TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    const roomCount = database.prepare('SELECT COUNT(*) as count FROM rooms').get();
-    if (roomCount.count === 0) {
-      database.prepare('INSERT INTO rooms (name, category, type, price, description, amenities, image) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
-        'Test Room', 'Deluxe', 'Single', 2200, 'A test room', 'WiFi,A/C', '/images/test.jpg'
-      );
-    }
-
-    const galleryCount = database.prepare('SELECT COUNT(*) as count FROM gallery').get();
-    if (galleryCount.count === 0) {
-      database.prepare('INSERT INTO gallery (title, image, category) VALUES (?, ?, ?)').run('Test Image', '/images/test.jpg', 'Rooms');
-    }
-
-    return database;
-  }
-
-  function closeDb() {
-    if (db) { db.close(); db = null; }
-  }
-
-  return { getDb, initializeDatabase, closeDb };
-});
-
 const app = require('./app');
-const { closeDb } = require('./config/database');
-
-afterAll(() => {
-  closeDb();
-  if (fs.existsSync(testDbPath)) fs.unlinkSync(testDbPath);
-});
 
 describe('Public Pages', () => {
   test('GET / should return home page', async () => {
@@ -101,7 +21,7 @@ describe('Public Pages', () => {
   test('GET /rooms/1 should return room detail page', async () => {
     const res = await request(app).get('/rooms/1');
     expect(res.status).toBe(200);
-    expect(res.text).toContain('Test Room');
+    expect(res.text).toContain('Economy');
   });
 
   test('GET /rooms/999 should return 404', async () => {
