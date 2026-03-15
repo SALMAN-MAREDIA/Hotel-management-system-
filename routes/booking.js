@@ -69,7 +69,15 @@ router.post('/:roomId', [
     }
 
     const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-    const totalAmount = room.price * nights;
+
+    // Calculate base occupancy from room type
+    const baseGuests = room.type === 'Triple' ? 3 : room.type === 'Double' ? 2 : 1;
+    const numGuests = parseInt(req.body.guests, 10) || 1;
+    const extraGuests = Math.max(0, numGuests - baseGuests);
+    // Extra person charge: ₹500 for A/C rooms, ₹400 for Non A/C rooms
+    const isAC = room.category !== 'Standard';
+    const extraChargePerPerson = isAC ? 500 : 400;
+    const totalAmount = (room.price + (extraGuests * extraChargePerPerson)) * nights;
 
     // If Stripe is configured, create a checkout session
     if (stripe) {

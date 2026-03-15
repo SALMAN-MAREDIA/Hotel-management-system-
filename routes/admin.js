@@ -3,6 +3,7 @@ const router = express.Router();
 const Admin = require('../models/Admin');
 const Booking = require('../models/Booking');
 const Room = require('../models/Room');
+const Gallery = require('../models/Gallery');
 const Contact = require('../models/Contact');
 const { isAuthenticated } = require('../middleware/auth');
 const { body, validationResult } = require('express-validator');
@@ -79,6 +80,7 @@ router.get('/dashboard', isAuthenticated, (req, res) => {
     const recentBookings = Booking.getRecent(5);
     const unreadMessages = Contact.getUnreadCount();
     const rooms = Room.getAll();
+    const gallery = Gallery.getAll();
 
     res.render('admin/dashboard', {
       title: 'Dashboard - Hotel Oasis',
@@ -87,7 +89,8 @@ router.get('/dashboard', isAuthenticated, (req, res) => {
       stats,
       recentBookings,
       unreadMessages,
-      rooms
+      rooms,
+      gallery
     });
   } catch (err) {
     console.error('Dashboard error:', err);
@@ -175,6 +178,93 @@ router.post('/rooms/:id/toggle', isAuthenticated, (req, res) => {
     res.redirect('/admin/dashboard');
   } catch (err) {
     console.error('Toggle room error:', err);
+    res.redirect('/admin/dashboard');
+  }
+});
+
+// Add new room
+router.post('/rooms/add', isAuthenticated, [
+  body('name').trim().notEmpty().withMessage('Room name is required').escape(),
+  body('category').trim().notEmpty().withMessage('Category is required').escape(),
+  body('type').trim().notEmpty().withMessage('Type is required').escape(),
+  body('price').isInt({ min: 1 }).withMessage('Valid price is required'),
+  body('description').trim().notEmpty().withMessage('Description is required').escape(),
+  body('amenities').trim().notEmpty().withMessage('Amenities are required').escape()
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    req.flash('error', errors.array().map(e => e.msg).join(', '));
+    return res.redirect('/admin/dashboard');
+  }
+
+  try {
+    Room.create({
+      name: req.body.name,
+      category: req.body.category,
+      type: req.body.type,
+      price: parseInt(req.body.price, 10),
+      description: req.body.description,
+      amenities: req.body.amenities,
+      image: req.body.image || ''
+    });
+    req.flash('success', 'Room added successfully');
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Add room error:', err);
+    req.flash('error', 'Failed to add room');
+    res.redirect('/admin/dashboard');
+  }
+});
+
+// Delete room
+router.post('/rooms/:id/delete', isAuthenticated, (req, res) => {
+  try {
+    Room.delete(parseInt(req.params.id, 10));
+    req.flash('success', 'Room deleted successfully');
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Delete room error:', err);
+    req.flash('error', 'Failed to delete room');
+    res.redirect('/admin/dashboard');
+  }
+});
+
+// Add gallery photo
+router.post('/gallery/add', isAuthenticated, [
+  body('title').trim().notEmpty().withMessage('Title is required').escape(),
+  body('image').trim().notEmpty().withMessage('Image URL is required'),
+  body('category').trim().notEmpty().withMessage('Category is required').escape()
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    req.flash('error', errors.array().map(e => e.msg).join(', '));
+    return res.redirect('/admin/dashboard');
+  }
+
+  try {
+    Gallery.create({
+      title: req.body.title,
+      image: req.body.image,
+      category: req.body.category
+    });
+    req.flash('success', 'Gallery photo added successfully');
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Add gallery error:', err);
+    req.flash('error', 'Failed to add gallery photo');
+    res.redirect('/admin/dashboard');
+  }
+});
+
+// Delete gallery photo
+router.post('/gallery/:id/delete', isAuthenticated, (req, res) => {
+  try {
+    Gallery.delete(parseInt(req.params.id, 10));
+    req.flash('success', 'Gallery photo deleted successfully');
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Delete gallery error:', err);
+    req.flash('error', 'Failed to delete gallery photo');
     res.redirect('/admin/dashboard');
   }
 });

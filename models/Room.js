@@ -17,6 +17,13 @@ const Room = {
     return getDb().prepare('SELECT * FROM rooms WHERE category = ? AND available = 1 ORDER BY price ASC').all(category);
   },
 
+  create(data) {
+    const stmt = getDb().prepare(
+      'INSERT INTO rooms (name, category, type, price, description, amenities, image) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    );
+    return stmt.run(data.name, data.category, data.type, data.price, data.description, data.amenities, data.image || '');
+  },
+
   update(id, data) {
     const fields = [];
     const values = [];
@@ -26,6 +33,10 @@ const Room = {
     }
     values.push(id);
     return getDb().prepare(`UPDATE rooms SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+  },
+
+  delete(id) {
+    return getDb().prepare('DELETE FROM rooms WHERE id = ?').run(id);
   },
 
   toggleAvailability(id) {
