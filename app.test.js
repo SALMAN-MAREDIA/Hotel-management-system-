@@ -1,13 +1,18 @@
 const request = require('supertest');
 const fs = require('fs');
+const path = require('path');
 
 // Set test environment
 process.env.SESSION_SECRET = 'test-secret';
 process.env.ADMIN_EMAIL = 'admin@hoteloasis.com';
 process.env.ADMIN_PASSWORD = 'admin123';
 
+// Ensure db directory exists
+const dbDir = path.join(__dirname, 'db');
+fs.mkdirSync(dbDir, { recursive: true });
+
 // Use a separate test database
-const testDbPath = __dirname + '/db/test-hotel.db';
+const testDbPath = path.join(dbDir, 'test-hotel.db');
 if (fs.existsSync(testDbPath)) fs.unlinkSync(testDbPath);
 
 // Override database path for tests

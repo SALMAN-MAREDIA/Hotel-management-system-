@@ -1,8 +1,13 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 const bcrypt = require('bcryptjs');
 
-const DB_PATH = path.join(__dirname, '..', 'db', 'hotel.db');
+const DB_DIR = path.join(__dirname, '..', 'db');
+const DB_PATH = path.join(DB_DIR, 'hotel.db');
+
+// Ensure db directory exists
+fs.mkdirSync(DB_DIR, { recursive: true });
 
 let db;
 
