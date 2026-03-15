@@ -1,26 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const nodemailer = require('nodemailer');
 const Room = require('../models/Room');
 const Booking = require('../models/Booking');
 const { body, validationResult } = require('express-validator');
-
-const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || 'marediasalman0@gmail.com';
-
-function getMailTransporter() {
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-    return nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587', 10),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    });
-  }
-  return null;
-}
+const { getMailTransporter, getFromAddress, NOTIFICATION_EMAIL } = require('../utils/mailer');
 
 // Booking form page
 router.get('/:roomId', (req, res, next) => {
@@ -106,10 +89,10 @@ router.post('/:roomId', [
 
     // Send email notification to hotel owner
     const transporter = getMailTransporter();
-    if (transporter) {
+    if (transporter && NOTIFICATION_EMAIL) {
       try {
         await transporter.sendMail({
-          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+          from: getFromAddress(),
           to: NOTIFICATION_EMAIL,
           subject: `New Room Reservation #${bookingId} - ${room.name}`,
           html: `
