@@ -1,7 +1,6 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
-const bcrypt = require('bcryptjs');
 
 const DB_DIR = path.join(__dirname, '..', 'db');
 const DB_PATH = path.join(DB_DIR, 'hotel.db');
@@ -55,14 +54,6 @@ function initializeDatabase() {
       FOREIGN KEY (room_id) REFERENCES rooms(id)
     );
 
-    CREATE TABLE IF NOT EXISTS admins (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT UNIQUE NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-
     CREATE TABLE IF NOT EXISTS contacts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -82,17 +73,6 @@ function initializeDatabase() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
-
-  // Seed default admin
-  const adminExists = database.prepare('SELECT id FROM admins LIMIT 1').get();
-  if (!adminExists) {
-    const hashedPassword = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin123', 12);
-    database.prepare('INSERT INTO admins (username, email, password) VALUES (?, ?, ?)').run(
-      'admin',
-      process.env.ADMIN_EMAIL || 'admin@hoteloasis.com',
-      hashedPassword
-    );
-  }
 
   // Seed rooms
   const roomCount = database.prepare('SELECT COUNT(*) as count FROM rooms').get();

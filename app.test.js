@@ -4,8 +4,6 @@ const path = require('path');
 
 // Set test environment
 process.env.SESSION_SECRET = 'test-secret';
-process.env.ADMIN_EMAIL = 'admin@hoteloasis.com';
-process.env.ADMIN_PASSWORD = 'admin123';
 
 // Ensure db directory exists
 const dbDir = path.join(__dirname, 'db');
@@ -18,7 +16,6 @@ if (fs.existsSync(testDbPath)) fs.unlinkSync(testDbPath);
 // Override database path for tests
 jest.mock('./config/database', () => {
   const Database = require('better-sqlite3');
-  const bcrypt = require('bcryptjs');
   const mockDbPath = __dirname + '/db/test-hotel.db';
   let db;
 
@@ -47,10 +44,6 @@ jest.mock('./config/database', () => {
         special_requests TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (room_id) REFERENCES rooms(id)
       );
-      CREATE TABLE IF NOT EXISTS admins (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL, password TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
       CREATE TABLE IF NOT EXISTS contacts (
         id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT NOT NULL,
         phone TEXT, subject TEXT NOT NULL, message TEXT NOT NULL, read INTEGER DEFAULT 0,
@@ -61,12 +54,6 @@ jest.mock('./config/database', () => {
         category TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
-
-    const adminExists = database.prepare('SELECT id FROM admins LIMIT 1').get();
-    if (!adminExists) {
-      const hashed = bcrypt.hashSync('admin123', 12);
-      database.prepare('INSERT INTO admins (username, email, password) VALUES (?, ?, ?)').run('admin', 'admin@hoteloasis.com', hashed);
-    }
 
     const roomCount = database.prepare('SELECT COUNT(*) as count FROM rooms').get();
     if (roomCount.count === 0) {
