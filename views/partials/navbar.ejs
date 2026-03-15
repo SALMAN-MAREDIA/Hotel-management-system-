@@ -1,0 +1,33 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="/">
+      <i class="bi bi-building me-2 text-warning"></i>
+      <span class="brand-text">Hotel <span class="text-warning">Oasis</span></span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link <%= currentPage === 'home' ? 'active' : '' %>" href="/"><i class="bi bi-house-door me-1"></i>Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPage === 'rooms' ? 'active' : '' %>" href="/rooms"><i class="bi bi-door-open me-1"></i>Rooms</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPage === 'gallery' ? 'active' : '' %>" href="/gallery"><i class="bi bi-images me-1"></i>Gallery</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPage === 'about' ? 'active' : '' %>" href="/about"><i class="bi bi-info-circle me-1"></i>About Us</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPage === 'contact' ? 'active' : '' %>" href="/contact"><i class="bi bi-envelope me-1"></i>Contact</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPage === 'admin' ? 'active' : '' %>" href="/admin/login"><i class="bi bi-person-lock me-1"></i>Admin</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

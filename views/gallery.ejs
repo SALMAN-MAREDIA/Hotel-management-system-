@@ -1,0 +1,56 @@
+<%- include('partials/header') %>
+
+<!-- Page Header -->
+<section class="page-header">
+  <div class="container text-center text-white">
+    <h1 class="display-5 fw-bold">Photo <span class="text-warning">Gallery</span></h1>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb justify-content-center">
+        <li class="breadcrumb-item"><a href="/" class="text-warning text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item text-light active">Gallery</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <!-- Category Filter -->
+    <div class="d-flex justify-content-center flex-wrap gap-2 mb-5">
+      <button class="btn btn-warning rounded-pill px-4 gallery-filter active" data-filter="all">All</button>
+      <button class="btn btn-outline-warning rounded-pill px-4 gallery-filter" data-filter="Interior">Interior</button>
+      <button class="btn btn-outline-warning rounded-pill px-4 gallery-filter" data-filter="Rooms">Rooms</button>
+      <button class="btn btn-outline-warning rounded-pill px-4 gallery-filter" data-filter="Dining">Dining</button>
+      <button class="btn btn-outline-warning rounded-pill px-4 gallery-filter" data-filter="Exterior">Exterior</button>
+      <button class="btn btn-outline-warning rounded-pill px-4 gallery-filter" data-filter="Facilities">Facilities</button>
+    </div>
+
+    <div class="row g-4" id="gallery-grid">
+      <% gallery.forEach((item, index) => { %>
+        <div class="col-lg-4 col-md-6 gallery-item" data-category="<%= item.category %>">
+          <div class="card border-0 shadow rounded-4 overflow-hidden gallery-card">
+            <div class="gallery-img" style="height:280px;background:linear-gradient(135deg,<%= ['#667eea,#764ba2','#f093fb,#f5576c','#4facfe,#00f2fe','#43e97b,#38f9d7','#fa709a,#fee140','#a18cd1,#fbc2eb'][index % 6] %>);display:flex;align-items:center;justify-content:center">
+              <div class="text-center text-white">
+                <i class="bi bi-camera display-3"></i>
+                <p class="mt-2 mb-0 fw-bold"><%= item.title %></p>
+              </div>
+            </div>
+            <div class="card-body p-3 text-center">
+              <h6 class="fw-bold mb-1"><%= item.title %></h6>
+              <span class="badge bg-warning text-dark rounded-pill"><%= item.category %></span>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+
+    <% if (gallery.length === 0) { %>
+      <div class="text-center py-5">
+        <i class="bi bi-images display-1 text-muted"></i>
+        <h3 class="mt-3 text-muted">No photos available yet</h3>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/layout-end') %>

@@ -1,0 +1,21 @@
+<%- include('partials/header') %>
+
+<section class="py-5 min-vh-100 d-flex align-items-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 text-center">
+        <div class="card border-0 shadow rounded-4 p-5">
+          <h1 class="display-1 fw-bold text-warning"><%= errorCode %></h1>
+          <h3 class="fw-bold mb-3">Oops! Something went wrong</h3>
+          <p class="text-muted fs-5 mb-4"><%= errorMessage %></p>
+          <div>
+            <a href="/" class="btn btn-warning px-4 rounded-pill me-2"><i class="bi bi-house me-1"></i>Go Home</a>
+            <a href="/contact" class="btn btn-outline-warning px-4 rounded-pill"><i class="bi bi-envelope me-1"></i>Contact Us</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/layout-end') %>
