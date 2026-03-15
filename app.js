@@ -21,7 +21,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
       imgSrc: ["'self'", "data:", "https:"],
-      frameSrc: ["https://js.stripe.com"],
+      frameSrc: ["https://js.stripe.com", "https://www.google.com"],
       connectSrc: ["'self'", "https://api.stripe.com"]
     }
   },
@@ -39,7 +39,7 @@ app.use(express.json({ limit: '1mb' }));
 // Static files
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
 
-// Session
+// Session - expires after 30 minutes of inactivity
 app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret-change-me',
   resave: false,
@@ -47,7 +47,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000,
+    maxAge: 30 * 60 * 1000,
     sameSite: 'lax'
   }
 }));

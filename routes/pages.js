@@ -47,7 +47,8 @@ router.get('/contact', (req, res) => {
 router.post('/contact', [
   body('name').trim().notEmpty().withMessage('Name is required').escape(),
   body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
-  body('phone').optional({ values: 'falsy' }).trim().escape(),
+  body('phone').trim().notEmpty().withMessage('Phone number is required')
+    .matches(/^\d{10}$/).withMessage('Phone must be exactly 10 digits').escape(),
   body('subject').trim().notEmpty().withMessage('Subject is required').escape(),
   body('message').trim().notEmpty().withMessage('Message is required').isLength({ max: 2000 }).withMessage('Message must be under 2000 characters').escape()
 ], (req, res) => {
@@ -62,8 +63,9 @@ router.post('/contact', [
   }
 
   try {
-    Contact.create(req.body);
-    req.flash('success', 'Your message has been sent successfully! We will get back to you soon.');
+    const phoneWithCode = '+91' + req.body.phone;
+    Contact.create({ ...req.body, phone: phoneWithCode });
+    req.flash('success', 'Your message has been sent successfully! Soon we will reach out to you. Thank you for contacting Hotel Oasis.');
     res.redirect('/contact');
   } catch (err) {
     console.error('Contact form error:', err);

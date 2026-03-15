@@ -4,6 +4,7 @@ const Admin = require('../models/Admin');
 const Booking = require('../models/Booking');
 const Room = require('../models/Room');
 const Contact = require('../models/Contact');
+const Gallery = require('../models/Gallery');
 const { isAuthenticated } = require('../middleware/auth');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
@@ -176,6 +177,71 @@ router.post('/rooms/:id/toggle', isAuthenticated, (req, res) => {
   } catch (err) {
     console.error('Toggle room error:', err);
     res.redirect('/admin/dashboard');
+  }
+});
+
+// Delete booking
+router.post('/bookings/:id/delete', isAuthenticated, (req, res) => {
+  try {
+    Booking.delete(parseInt(req.params.id, 10));
+    res.redirect('/admin/bookings');
+  } catch (err) {
+    console.error('Delete booking error:', err);
+    res.redirect('/admin/bookings');
+  }
+});
+
+// Gallery management page
+router.get('/gallery', isAuthenticated, (req, res) => {
+  try {
+    const gallery = Gallery.getAll();
+    res.render('admin/gallery', {
+      title: 'Gallery Management - Hotel Oasis',
+      currentPage: 'admin',
+      adminName: req.session.adminName,
+      gallery
+    });
+  } catch (err) {
+    console.error('Gallery management error:', err);
+    res.status(500).render('error', { title: 'Error', errorCode: 500, errorMessage: 'Failed to load gallery', currentPage: 'admin' });
+  }
+});
+
+// Add gallery photo
+router.post('/gallery/add', isAuthenticated, [
+  body('title').trim().notEmpty().withMessage('Title is required').escape(),
+  body('category').trim().notEmpty().withMessage('Category is required').escape()
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    req.flash('error', errors.array().map(e => e.msg).join(', '));
+    return res.redirect('/admin/gallery');
+  }
+  try {
+    Gallery.create({
+      title: req.body.title,
+      category: req.body.category,
+      image_url: req.body.image_url || null
+    });
+    req.flash('success', 'Photo added to gallery');
+    res.redirect('/admin/gallery');
+  } catch (err) {
+    console.error('Add gallery error:', err);
+    req.flash('error', 'Failed to add photo');
+    res.redirect('/admin/gallery');
+  }
+});
+
+// Delete gallery photo
+router.post('/gallery/:id/delete', isAuthenticated, (req, res) => {
+  try {
+    Gallery.delete(parseInt(req.params.id, 10));
+    req.flash('success', 'Photo removed from gallery');
+    res.redirect('/admin/gallery');
+  } catch (err) {
+    console.error('Delete gallery error:', err);
+    req.flash('error', 'Failed to remove photo');
+    res.redirect('/admin/gallery');
   }
 });
 

@@ -48,6 +48,14 @@
                 <span class="text-muted">Nights:</span>
                 <span id="nights-count" class="fw-bold">-</span>
               </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Room Charge:</span>
+                <span id="room-charge" class="fw-bold">-</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2 d-none" id="extra-person-row">
+                <span class="text-muted">Extra Person Charge:</span>
+                <span id="extra-person-charge" class="fw-bold">-</span>
+              </div>
               <div class="d-flex justify-content-between">
                 <span class="fw-bold fs-5">Total:</span>
                 <span id="total-price" class="fw-bold fs-5 text-warning">-</span>
@@ -95,8 +103,10 @@
                   <label for="guest_phone" class="form-label fw-bold">Phone <span class="text-danger">*</span></label>
                   <div class="input-group">
                     <span class="input-group-text bg-warning border-0"><i class="bi bi-phone-fill text-dark"></i></span>
-                    <input type="tel" class="form-control" id="guest_phone" name="guest_phone" placeholder="+91 XXXXX XXXXX" required value="<%= typeof formData !== 'undefined' && formData.guest_phone ? formData.guest_phone : '' %>">
+                    <span class="input-group-text bg-light border-end-0">+91</span>
+                    <input type="tel" class="form-control" id="guest_phone" name="guest_phone" placeholder="8286470877" required pattern="[0-9]{10}" maxlength="10" title="Enter 10 digit mobile number" value="<%= typeof formData !== 'undefined' && formData.guest_phone ? formData.guest_phone : '' %>">
                   </div>
+                  <small class="text-muted">Enter 10 digit mobile number</small>
                 </div>
                 <div class="col-md-6">
                   <label for="guests" class="form-label fw-bold">Number of Guests <span class="text-danger">*</span></label>
@@ -153,10 +163,17 @@
 <script>
   (function() {
     var roomPrice = <%= room.price %>;
+    var isAC = '<%= room.category %>' !== 'Standard';
+    var extraPersonCharge = isAC ? 500 : 400;
+    var baseOccupancy = '<%= room.type %>' === 'Triple' ? 3 : '<%= room.type %>' === 'Double' ? 2 : 1;
     var checkIn = document.getElementById('check_in');
     var checkOut = document.getElementById('check_out');
+    var guestsEl = document.getElementById('guests');
     var summary = document.getElementById('price-summary');
     var nightsEl = document.getElementById('nights-count');
+    var roomChargeEl = document.getElementById('room-charge');
+    var extraPersonRow = document.getElementById('extra-person-row');
+    var extraPersonChargeEl = document.getElementById('extra-person-charge');
     var totalEl = document.getElementById('total-price');
 
     // Set minimum date to today
@@ -170,8 +187,22 @@
         var outDate = new Date(checkOut.value);
         if (outDate > inDate) {
           var nights = Math.ceil((outDate - inDate) / (1000 * 60 * 60 * 24));
-          var total = roomPrice * nights;
+          var guests = parseInt(guestsEl.value) || 1;
+          var extraPersons = Math.max(0, guests - baseOccupancy);
+          var roomTotal = roomPrice * nights;
+          var extraTotal = extraPersons * extraPersonCharge * nights;
+          var total = roomTotal + extraTotal;
+
           nightsEl.textContent = nights;
+          roomChargeEl.textContent = '\u20B9' + roomTotal.toLocaleString('en-IN');
+
+          if (extraPersons > 0) {
+            extraPersonRow.classList.remove('d-none');
+            extraPersonChargeEl.textContent = '\u20B9' + extraTotal.toLocaleString('en-IN') + ' (' + extraPersons + ' extra × \u20B9' + extraPersonCharge + '/night)';
+          } else {
+            extraPersonRow.classList.add('d-none');
+          }
+
           totalEl.textContent = '\u20B9' + total.toLocaleString('en-IN');
           summary.classList.remove('d-none');
         } else {
@@ -187,6 +218,7 @@
       calcPrice();
     });
     checkOut.addEventListener('change', calcPrice);
+    guestsEl.addEventListener('change', calcPrice);
   })();
 </script>
 
