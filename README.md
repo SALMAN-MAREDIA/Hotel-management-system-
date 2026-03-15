@@ -5,11 +5,11 @@ A full-stack hotel management system for Hotel Oasis, Mumbai. Built with Node.js
 ## Features
 
 - **Public Pages**: Home, Rooms, Gallery, About Us, Contact Us
-- **Room Booking**: Complete booking flow with payment gateway integration (Stripe)
-- **Admin Panel**: Login, Dashboard with stats, Booking management, Message management
+- **Room Booking**: Complete booking flow with "Reserve Room" button — booking details sent via email
+- **Email Notifications**: Booking requests and contact form submissions are sent directly to the hotel owner's email
 - **WhatsApp Integration**: Floating WhatsApp icon for quick contact
-- **Security**: Helmet, rate limiting, input validation, bcrypt password hashing, session management
-- **Responsive Design**: Bootstrap 5 with custom styling for all screen sizes
+- **Security**: Helmet, rate limiting, input validation, session management
+- **Responsive Design**: Bootstrap 5 with modern custom styling for all screen sizes
 
 ## Tech Stack
 
@@ -17,7 +17,7 @@ A full-stack hotel management system for Hotel Oasis, Mumbai. Built with Node.js
 - **Templates**: EJS
 - **Database**: SQLite (via better-sqlite3)
 - **Security**: Helmet, bcryptjs, express-validator, express-rate-limit
-- **Payment**: Stripe
+- **Email**: Nodemailer (SMTP / Gmail)
 - **Frontend**: Bootstrap 5, Bootstrap Icons, Custom CSS
 
 ## Getting Started
@@ -33,9 +33,18 @@ cp .env.example .env   # Edit .env with your settings
 npm start              # Server runs on http://localhost:3000
 ```
 
-### Default Admin Credentials
-- **Email**: admin@hoteloasis.com
-- **Password**: admin123
+### Email Configuration
+
+Configure SMTP settings in `.env` to receive booking and contact form notifications:
+
+```
+NOTIFICATION_EMAIL=marediasalman0@gmail.com
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+SMTP_FROM=Hotel Oasis <your-email@gmail.com>
+```
 
 ### Running Tests
 

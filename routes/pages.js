@@ -1,9 +1,27 @@
 const express = require('express');
 const router = express.Router();
+const nodemailer = require('nodemailer');
 const Room = require('../models/Room');
 const Gallery = require('../models/Gallery');
 const Contact = require('../models/Contact');
 const { body, validationResult } = require('express-validator');
+
+const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || 'marediasalman0@gmail.com';
+
+function getMailTransporter() {
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
+  }
+  return null;
+}
 
 // Home page
 router.get('/', (req, res) => {
@@ -51,7 +69,7 @@ router.post('/contact', [
     .matches(/^\d{7,15}$/).withMessage('Phone must be between 7 and 15 digits').escape(),
   body('subject').trim().notEmpty().withMessage('Subject is required').escape(),
   body('message').trim().notEmpty().withMessage('Message is required').isLength({ max: 2000 }).withMessage('Message must be under 2000 characters').escape()
-], (req, res) => {
+], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).render('contact', {
@@ -66,6 +84,36 @@ router.post('/contact', [
     const countryCode = req.body.country_code || '+91';
     const phoneWithCode = countryCode + req.body.phone;
     Contact.create({ ...req.body, phone: phoneWithCode });
+
+    // Send email notification to hotel owner
+    const transporter = getMailTransporter();
+    if (transporter) {
+      try {
+        await transporter.sendMail({
+          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+          to: NOTIFICATION_EMAIL,
+          subject: `New Contact Message: ${req.body.subject}`,
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#f9f9f9;border-radius:10px">
+              <h2 style="color:#c8a96e;text-align:center">📩 New Contact Message</h2>
+              <div style="background:#fff;padding:20px;border-radius:8px;margin:15px 0">
+                <table style="width:100%;border-collapse:collapse">
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Name</td><td style="padding:10px;border-bottom:1px solid #eee">${req.body.name}</td></tr>
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Email</td><td style="padding:10px;border-bottom:1px solid #eee">${req.body.email}</td></tr>
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Phone</td><td style="padding:10px;border-bottom:1px solid #eee">${phoneWithCode}</td></tr>
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Subject</td><td style="padding:10px;border-bottom:1px solid #eee">${req.body.subject}</td></tr>
+                  <tr><td style="padding:10px;font-weight:bold;color:#555;vertical-align:top">Message</td><td style="padding:10px">${req.body.message}</td></tr>
+                </table>
+              </div>
+              <p style="color:#888;font-size:12px;text-align:center">Reply to this guest at: ${req.body.email}</p>
+            </div>
+          `
+        });
+      } catch (emailErr) {
+        console.error('Contact notification email error:', emailErr);
+      }
+    }
+
     req.flash('success', 'Your message has been sent successfully! Soon we will reach out to you. Thank you for contacting Hotel Oasis.');
     res.redirect('/contact');
   } catch (err) {
