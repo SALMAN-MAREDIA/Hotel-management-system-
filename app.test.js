@@ -9,7 +9,7 @@ process.env.ADMIN_PASSWORD = 'admin123';
 
 // Ensure db directory exists
 const dbDir = path.join(__dirname, 'db');
-if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
+fs.mkdirSync(dbDir, { recursive: true });
 
 // Use a separate test database
 const testDbPath = path.join(dbDir, 'test-hotel.db');
