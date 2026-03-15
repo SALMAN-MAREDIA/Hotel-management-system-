@@ -18,7 +18,15 @@ const Booking = {
       SELECT b.*, r.name as room_name, r.category as room_category
       FROM bookings b
       LEFT JOIN rooms r ON b.room_id = r.id
-      ORDER BY b.created_at DESC
+      ORDER BY
+        CASE b.booking_status
+          WHEN 'checked-in' THEN 1
+          WHEN 'confirmed' THEN 2
+          WHEN 'cancelled' THEN 3
+          WHEN 'checked-out' THEN 4
+          ELSE 2
+        END ASC,
+        b.created_at DESC
     `).all();
   },
 
@@ -39,6 +47,10 @@ const Booking = {
     return getDb().prepare('UPDATE bookings SET booking_status = ? WHERE id = ?').run(status, id);
   },
 
+  delete(id) {
+    return getDb().prepare('DELETE FROM bookings WHERE id = ?').run(id);
+  },
+
   getRecent(limit = 10) {
     return getDb().prepare(`
       SELECT b.*, r.name as room_name
@@ -51,10 +63,11 @@ const Booking = {
 
   getStats() {
     const db = getDb();
-    const totalBookings = db.prepare('SELECT COUNT(*) as count FROM bookings').get().count;
-    const totalRevenue = db.prepare("SELECT COALESCE(SUM(total_amount), 0) as total FROM bookings WHERE payment_status = 'paid'").get().total;
-    const pendingBookings = db.prepare("SELECT COUNT(*) as count FROM bookings WHERE booking_status = 'confirmed' AND payment_status = 'pending'").get().count;
-    const todayBookings = db.prepare("SELECT COUNT(*) as count FROM bookings WHERE DATE(created_at) = DATE('now')").get().count;
+    const currentYear = new Date().getFullYear();
+    const totalBookings = db.prepare("SELECT COUNT(*) as count FROM bookings WHERE strftime('%Y', created_at) = ?").get(String(currentYear)).count;
+    const totalRevenue = db.prepare("SELECT COALESCE(SUM(total_amount), 0) as total FROM bookings WHERE payment_status IN ('paid', 'demo') AND booking_status != 'cancelled'").get().total;
+    const pendingBookings = db.prepare("SELECT COUNT(*) as count FROM bookings WHERE booking_status IN ('confirmed') AND payment_status = 'pending'").get().count;
+    const todayBookings = db.prepare("SELECT COUNT(*) as count FROM bookings WHERE DATE(check_in) = DATE('now')").get().count;
     return { totalBookings, totalRevenue, pendingBookings, todayBookings };
   }
 };

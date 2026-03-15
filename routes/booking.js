@@ -30,7 +30,7 @@ router.post('/:roomId', [
   body('guest_name').trim().notEmpty().withMessage('Full name is required').escape(),
   body('guest_email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('guest_phone').trim().notEmpty().withMessage('Phone number is required')
-    .matches(/^[\d\s+\-()]+$/).withMessage('Invalid phone number').escape(),
+    .matches(/^\d{10}$/).withMessage('Phone must be exactly 10 digits').escape(),
   body('check_in').notEmpty().withMessage('Check-in date is required')
     .isISO8601().withMessage('Invalid check-in date'),
   body('check_out').notEmpty().withMessage('Check-out date is required')
@@ -69,7 +69,13 @@ router.post('/:roomId', [
     }
 
     const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-    const totalAmount = room.price * nights;
+    const guests = parseInt(req.body.guests, 10) || 1;
+    const isAC = room.category !== 'Standard';
+    const extraPersonCharge = isAC ? 500 : 400;
+    const baseOccupancy = room.type === 'Triple' ? 3 : room.type === 'Double' ? 2 : 1;
+    const extraPersons = Math.max(0, guests - baseOccupancy);
+    const totalAmount = (room.price * nights) + (extraPersons * extraPersonCharge * nights);
+    const guestPhone = '+91' + req.body.guest_phone;
 
     // If Stripe is configured, create a checkout session
     if (stripe) {
@@ -93,7 +99,7 @@ router.post('/:roomId', [
           room_id: String(room.id),
           guest_name: req.body.guest_name,
           guest_email: req.body.guest_email,
-          guest_phone: req.body.guest_phone,
+          guest_phone: guestPhone,
           check_in: req.body.check_in,
           check_out: req.body.check_out,
           guests: String(req.body.guests),
@@ -109,7 +115,7 @@ router.post('/:roomId', [
       room_id: room.id,
       guest_name: req.body.guest_name,
       guest_email: req.body.guest_email,
-      guest_phone: req.body.guest_phone,
+      guest_phone: guestPhone,
       check_in: req.body.check_in,
       check_out: req.body.check_out,
       guests: req.body.guests,

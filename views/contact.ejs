@@ -118,11 +118,13 @@
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <label for="phone" class="form-label fw-bold">Phone</label>
+                  <label for="phone" class="form-label fw-bold">Phone <span class="text-danger">*</span></label>
                   <div class="input-group">
                     <span class="input-group-text bg-warning border-0"><i class="bi bi-phone-fill text-dark"></i></span>
-                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="+91 XXXXX XXXXX" value="<%= typeof formData !== 'undefined' && formData.phone ? formData.phone : '' %>">
+                    <span class="input-group-text bg-light border-end-0">+91</span>
+                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="8286470877" required pattern="[0-9]{10}" maxlength="10" title="Enter 10 digit mobile number" value="<%= typeof formData !== 'undefined' && formData.phone ? formData.phone : '' %>">
                   </div>
+                  <small class="text-muted">Enter 10 digit mobile number</small>
                 </div>
                 <div class="col-md-6">
                   <label for="subject" class="form-label fw-bold">Subject <span class="text-danger">*</span></label>

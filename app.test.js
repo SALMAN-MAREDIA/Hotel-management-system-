@@ -154,7 +154,7 @@ describe('Contact Form', () => {
       .send({
         name: 'Test User',
         email: 'test@example.com',
-        phone: '+91 12345 67890',
+        phone: '1234567890',
         subject: 'Test Subject',
         message: 'This is a test message'
       });
@@ -194,7 +194,7 @@ describe('Booking', () => {
       .send({
         guest_name: 'Test Guest',
         guest_email: 'guest@example.com',
-        guest_phone: '+91 98765 43210',
+        guest_phone: '9876543210',
         check_in: tomorrow.toISOString().split('T')[0],
         check_out: dayAfter.toISOString().split('T')[0],
         guests: 2,
