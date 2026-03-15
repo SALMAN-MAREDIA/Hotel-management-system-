@@ -153,11 +153,19 @@
 <script>
   (function() {
     var roomPrice = <%= room.price %>;
+    var roomType = '<%= room.type %>';
+    var roomCategory = '<%= room.category %>';
     var checkIn = document.getElementById('check_in');
     var checkOut = document.getElementById('check_out');
+    var guestsSelect = document.getElementById('guests');
     var summary = document.getElementById('price-summary');
     var nightsEl = document.getElementById('nights-count');
     var totalEl = document.getElementById('total-price');
+
+    // Base occupancy from room type
+    var baseGuests = roomType === 'Triple' ? 3 : roomType === 'Double' ? 2 : 1;
+    // Extra person charge: ₹500 for A/C, ₹400 for Non A/C (Standard is Non A/C)
+    var extraChargePerPerson = roomCategory !== 'Standard' ? 500 : 400;
 
     // Set minimum date to today
     var today = new Date().toISOString().split('T')[0];
@@ -170,7 +178,9 @@
         var outDate = new Date(checkOut.value);
         if (outDate > inDate) {
           var nights = Math.ceil((outDate - inDate) / (1000 * 60 * 60 * 24));
-          var total = roomPrice * nights;
+          var numGuests = parseInt(guestsSelect.value, 10) || 1;
+          var extraGuests = Math.max(0, numGuests - baseGuests);
+          var total = (roomPrice + (extraGuests * extraChargePerPerson)) * nights;
           nightsEl.textContent = nights;
           totalEl.textContent = '\u20B9' + total.toLocaleString('en-IN');
           summary.classList.remove('d-none');
@@ -187,6 +197,7 @@
       calcPrice();
     });
     checkOut.addEventListener('change', calcPrice);
+    guestsSelect.addEventListener('change', calcPrice);
   })();
 </script>
 

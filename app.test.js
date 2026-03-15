@@ -105,6 +105,19 @@ describe('Public Pages', () => {
     expect(res.text).toContain('Hotel Oasis');
   });
 
+  test('GET / should contain nearby tourist places section', async () => {
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Tourist Places');
+    expect(res.text).not.toContain('Tariff');
+  });
+
+  test('GET / should not show admin link in navbar for unauthenticated users', async () => {
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.text).not.toContain('href="/admin/login"');
+  });
+
   test('GET /rooms should return rooms page', async () => {
     const res = await request(app).get('/rooms');
     expect(res.status).toBe(200);
@@ -249,5 +262,90 @@ describe('WhatsApp Integration', () => {
     const res = await request(app).get('/');
     expect(res.text).toContain('wa.me');
     expect(res.text).toContain('whatsapp');
+  });
+});
+
+describe('Admin Room Management', () => {
+  let agent;
+
+  beforeAll(async () => {
+    agent = request.agent(app);
+    await agent
+      .post('/admin/login')
+      .type('form')
+      .send({ email: 'admin@hoteloasis.com', password: 'admin123' });
+  });
+
+  test('POST /admin/rooms/add with valid data should add room and redirect', async () => {
+    const res = await agent
+      .post('/admin/rooms/add')
+      .type('form')
+      .send({
+        name: 'Test New Room',
+        category: 'Deluxe',
+        type: 'Double',
+        price: 2800,
+        description: 'A brand new test room',
+        amenities: 'WiFi,A/C,TV'
+      });
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/admin/dashboard');
+  });
+
+  test('POST /admin/rooms/add with invalid data should redirect with error', async () => {
+    const res = await agent
+      .post('/admin/rooms/add')
+      .type('form')
+      .send({ name: '', category: '', type: '', price: 0, description: '', amenities: '' });
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/admin/dashboard');
+  });
+
+  test('POST /admin/rooms/:id/delete should delete room and redirect', async () => {
+    const res = await agent
+      .post('/admin/rooms/1/delete');
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/admin/dashboard');
+  });
+});
+
+describe('Admin Gallery Management', () => {
+  let agent;
+
+  beforeAll(async () => {
+    agent = request.agent(app);
+    await agent
+      .post('/admin/login')
+      .type('form')
+      .send({ email: 'admin@hoteloasis.com', password: 'admin123' });
+  });
+
+  test('POST /admin/gallery/add with valid data should add photo and redirect', async () => {
+    const res = await agent
+      .post('/admin/gallery/add')
+      .type('form')
+      .send({
+        title: 'Test Gallery Photo',
+        image: '/images/test-gallery.jpg',
+        category: 'Rooms'
+      });
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/admin/dashboard');
+  });
+
+  test('POST /admin/gallery/add with invalid data should redirect with error', async () => {
+    const res = await agent
+      .post('/admin/gallery/add')
+      .type('form')
+      .send({ title: '', image: '', category: '' });
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/admin/dashboard');
+  });
+
+  test('POST /admin/gallery/:id/delete should delete photo and redirect', async () => {
+    const res = await agent
+      .post('/admin/gallery/1/delete');
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/admin/dashboard');
   });
 });
