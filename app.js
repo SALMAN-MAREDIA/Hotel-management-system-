@@ -22,12 +22,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://cdn.jsdelivr.net"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
       imgSrc: ["'self'", "data:", "https:"],
-      frameSrc: ["https://js.stripe.com", "https://www.google.com"],
-      connectSrc: ["'self'", "https://api.stripe.com"]
+      frameSrc: ["https://www.google.com"],
+      connectSrc: ["'self'"]
     }
   },
   crossOriginEmbedderPolicy: false
@@ -68,7 +68,6 @@ app.use((req, res, next) => {
 // Routes
 app.use('/', require('./routes/pages'));
 app.use('/booking', require('./routes/booking'));
-app.use('/admin', require('./routes/admin'));
 
 // Error handling
 app.use(notFound);

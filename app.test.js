@@ -182,7 +182,7 @@ describe('Booking', () => {
     expect(res.status).toBe(404);
   });
 
-  test('POST /booking/1 with valid data should create booking (demo mode)', async () => {
+  test('POST /booking/1 with valid data should create booking', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const dayAfter = new Date();
@@ -201,7 +201,7 @@ describe('Booking', () => {
         special_requests: 'None'
       });
     expect(res.status).toBe(200);
-    expect(res.text).toContain('Booking Received');
+    expect(res.text).toContain('Booking Has Been Sent');
   });
 
   test('POST /booking/1 with invalid data should return 400', async () => {
@@ -211,36 +211,23 @@ describe('Booking', () => {
       .send({ guest_name: '', guest_email: 'invalid', guest_phone: '', check_in: '', check_out: '', guests: 0 });
     expect(res.status).toBe(400);
   });
+
+  test('Booking form should have Reserve Room button', async () => {
+    const res = await request(app).get('/booking/1');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Reserve Room');
+  });
 });
 
-describe('Admin Authentication', () => {
-  test('GET /admin/login should return login page', async () => {
+describe('Admin Routes Removed', () => {
+  test('GET /admin/login should return 404', async () => {
     const res = await request(app).get('/admin/login');
-    expect(res.status).toBe(200);
-    expect(res.text).toContain('Login');
+    expect(res.status).toBe(404);
   });
 
-  test('POST /admin/login with invalid credentials should return 401', async () => {
-    const res = await request(app)
-      .post('/admin/login')
-      .type('form')
-      .send({ email: 'admin@hoteloasis.com', password: 'wrongpassword' });
-    expect(res.status).toBe(401);
-  });
-
-  test('GET /admin/dashboard without auth should redirect to login', async () => {
+  test('GET /admin/dashboard should return 404', async () => {
     const res = await request(app).get('/admin/dashboard');
-    expect(res.status).toBe(302);
-    expect(res.headers.location).toBe('/admin/login');
-  });
-
-  test('POST /admin/login with valid credentials should redirect to dashboard', async () => {
-    const res = await request(app)
-      .post('/admin/login')
-      .type('form')
-      .send({ email: 'admin@hoteloasis.com', password: 'admin123' });
-    expect(res.status).toBe(302);
-    expect(res.headers.location).toBe('/admin/dashboard');
+    expect(res.status).toBe(404);
   });
 });
 

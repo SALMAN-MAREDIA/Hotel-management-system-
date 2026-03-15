@@ -3,11 +3,7 @@ const router = express.Router();
 const Room = require('../models/Room');
 const Booking = require('../models/Booking');
 const { body, validationResult } = require('express-validator');
-
-const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
-const stripe = STRIPE_SECRET && STRIPE_SECRET !== 'sk_test_your_stripe_secret_key'
-  ? require('stripe')(STRIPE_SECRET)
-  : null;
+const { getMailTransporter, getFromAddress, NOTIFICATION_EMAIL } = require('../utils/mailer');
 
 // Booking form page
 router.get('/:roomId', (req, res, next) => {
@@ -20,8 +16,7 @@ router.get('/:roomId', (req, res, next) => {
     currentPage: 'rooms',
     room,
     errors: [],
-    formData: {},
-    stripeKey: process.env.STRIPE_PUBLISHABLE_KEY || ''
+    formData: {}
   });
 });
 
@@ -50,8 +45,7 @@ router.post('/:roomId', [
       currentPage: 'rooms',
       room,
       errors: errors.array(),
-      formData: req.body,
-      stripeKey: process.env.STRIPE_PUBLISHABLE_KEY || ''
+      formData: req.body
     });
   }
 
@@ -78,40 +72,6 @@ router.post('/:roomId', [
     const countryCode = req.body.country_code || '+91';
     const guestPhone = countryCode + req.body.guest_phone;
 
-    // If Stripe is configured, create a checkout session
-    if (stripe) {
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [{
-          price_data: {
-            currency: 'inr',
-            product_data: {
-              name: `${room.name} - ${nights} night(s)`,
-              description: `Hotel Oasis - ${room.category} Room`
-            },
-            unit_amount: totalAmount * 100
-          },
-          quantity: 1
-        }],
-        mode: 'payment',
-        success_url: `${req.protocol}://${req.get('host')}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.protocol}://${req.get('host')}/booking/${room.id}`,
-        metadata: {
-          room_id: String(room.id),
-          guest_name: req.body.guest_name,
-          guest_email: req.body.guest_email,
-          guest_phone: guestPhone,
-          check_in: req.body.check_in,
-          check_out: req.body.check_out,
-          guests: String(req.body.guests),
-          special_requests: req.body.special_requests || ''
-        }
-      });
-
-      return res.redirect(303, session.url);
-    }
-
-    // Without Stripe, create booking directly (demo mode)
     const result = Booking.create({
       room_id: room.id,
       guest_name: req.body.guest_name,
@@ -121,15 +81,52 @@ router.post('/:roomId', [
       check_out: req.body.check_out,
       guests: req.body.guests,
       total_amount: totalAmount,
-      payment_status: 'demo',
+      payment_status: 'pending',
       special_requests: req.body.special_requests
     });
 
+    const bookingId = result.lastInsertRowid;
+
+    // Send email notification to hotel owner
+    const transporter = getMailTransporter();
+    if (transporter && NOTIFICATION_EMAIL) {
+      try {
+        await transporter.sendMail({
+          from: getFromAddress(),
+          to: NOTIFICATION_EMAIL,
+          subject: `New Room Reservation #${bookingId} - ${room.name}`,
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#f9f9f9;border-radius:10px">
+              <h2 style="color:#c8a96e;text-align:center">🏨 New Room Reservation</h2>
+              <div style="background:#fff;padding:20px;border-radius:8px;margin:15px 0">
+                <h3 style="color:#333;margin-top:0">Booking #${bookingId}</h3>
+                <table style="width:100%;border-collapse:collapse">
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Guest Name</td><td style="padding:10px;border-bottom:1px solid #eee">${req.body.guest_name}</td></tr>
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Email</td><td style="padding:10px;border-bottom:1px solid #eee">${req.body.guest_email}</td></tr>
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Phone</td><td style="padding:10px;border-bottom:1px solid #eee">${guestPhone}</td></tr>
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Room</td><td style="padding:10px;border-bottom:1px solid #eee">${room.name} (${room.category})</td></tr>
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Check-in</td><td style="padding:10px;border-bottom:1px solid #eee">${req.body.check_in}</td></tr>
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Check-out</td><td style="padding:10px;border-bottom:1px solid #eee">${req.body.check_out}</td></tr>
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Guests</td><td style="padding:10px;border-bottom:1px solid #eee">${guests}</td></tr>
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Duration</td><td style="padding:10px;border-bottom:1px solid #eee">${nights} night(s)</td></tr>
+                  <tr><td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#555">Total Amount</td><td style="padding:10px;border-bottom:1px solid #eee;color:#c8a96e;font-weight:bold;font-size:18px">₹${totalAmount.toLocaleString('en-IN')}</td></tr>
+                  ${req.body.special_requests ? `<tr><td style="padding:10px;font-weight:bold;color:#555">Special Requests</td><td style="padding:10px">${req.body.special_requests}</td></tr>` : ''}
+                </table>
+              </div>
+              <p style="color:#888;font-size:12px;text-align:center">Please contact the guest to confirm this reservation.</p>
+            </div>
+          `
+        });
+      } catch (emailErr) {
+        console.error('Booking notification email error:', emailErr);
+      }
+    }
+
     res.render('booking-success', {
-      title: 'Booking Confirmed - Hotel Oasis',
+      title: 'Booking Received - Hotel Oasis',
       currentPage: 'rooms',
       booking: {
-        id: result.lastInsertRowid,
+        id: bookingId,
         room_name: room.name,
         guest_name: req.body.guest_name,
         check_in: req.body.check_in,
@@ -145,63 +142,9 @@ router.post('/:roomId', [
         currentPage: 'rooms',
         room,
         errors: [{ msg: err.message }],
-        formData: req.body,
-        stripeKey: process.env.STRIPE_PUBLISHABLE_KEY || ''
+        formData: req.body
       });
     }
-    next(err);
-  }
-});
-
-// Booking success page (after Stripe payment)
-router.get('/success', async (req, res, next) => {
-  try {
-    if (stripe && req.query.session_id) {
-      const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
-      if (session.payment_status === 'paid') {
-        const meta = session.metadata;
-        const checkIn = new Date(meta.check_in);
-        const checkOut = new Date(meta.check_out);
-        const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-
-        const result = Booking.create({
-          room_id: parseInt(meta.room_id, 10),
-          guest_name: meta.guest_name,
-          guest_email: meta.guest_email,
-          guest_phone: meta.guest_phone,
-          check_in: meta.check_in,
-          check_out: meta.check_out,
-          guests: parseInt(meta.guests, 10),
-          total_amount: session.amount_total / 100,
-          payment_status: 'paid',
-          payment_id: session.payment_intent,
-          special_requests: meta.special_requests
-        });
-
-        const room = Room.getById(parseInt(meta.room_id, 10));
-
-        return res.render('booking-success', {
-          title: 'Booking Confirmed - Hotel Oasis',
-          currentPage: 'rooms',
-          booking: {
-            id: result.lastInsertRowid,
-            room_name: room ? room.name : 'Room',
-            guest_name: meta.guest_name,
-            check_in: meta.check_in,
-            check_out: meta.check_out,
-            total_amount: session.amount_total / 100,
-            nights
-          }
-        });
-      }
-    }
-
-    res.render('booking-success', {
-      title: 'Booking Confirmed - Hotel Oasis',
-      currentPage: 'rooms',
-      booking: null
-    });
-  } catch (err) {
     next(err);
   }
 });
