@@ -15,8 +15,8 @@ const Gallery = {
 
   create(data) {
     return getDb().prepare(
-      'INSERT INTO gallery (title, category, image_url) VALUES (?, ?, ?)'
-    ).run(data.title, data.category, data.image_url || null);
+      'INSERT INTO gallery (title, category, image) VALUES (?, ?, ?)'
+    ).run(data.title, data.category, data.image || null);
   },
 
   delete(id) {

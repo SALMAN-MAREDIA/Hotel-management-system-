@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const session = require('express-session');
 const helmet = require('helmet');
 const flash = require('connect-flash');
@@ -9,6 +10,10 @@ const { notFound, errorHandler } = require('./middleware/errorHandler');
 
 // Initialize database
 initializeDatabase();
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'public', 'uploads');
+fs.mkdirSync(uploadsDir, { recursive: true });
 
 const app = express();
 

@@ -78,7 +78,7 @@
                       </span>
                     </td>
                     <td>
-                      <span class="badge rounded-pill bg-<%= booking.booking_status === 'confirmed' ? 'primary' : booking.booking_status === 'checked-in' ? 'success' : booking.booking_status === 'checked-out' ? 'secondary' : 'danger' %>">
+                      <span class="badge rounded-pill bg-<%= booking.booking_status === 'confirmed' ? 'primary' : booking.booking_status === 'checked-in' ? 'success' : booking.booking_status === 'checked-out' ? 'secondary' : booking.booking_status === 'pending' ? 'warning text-dark' : 'danger' %>">
                         <%= booking.booking_status %>
                       </span>
                     </td>
@@ -94,9 +94,6 @@
                             <li><form action="/admin/bookings/<%= booking.id %>/status" method="POST"><input type="hidden" name="status" value="cancelled"><button class="dropdown-item text-danger" type="submit"><i class="bi bi-x-circle me-2"></i>Cancel</button></form></li>
                           </ul>
                         </div>
-                        <form action="/admin/bookings/<%= booking.id %>/delete" method="POST" class="d-inline">
-                          <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Delete this booking permanently?')"><i class="bi bi-trash"></i></button>
-                        </form>
                       </div>
                     </td>
                   </tr>

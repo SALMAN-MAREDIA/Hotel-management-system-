@@ -43,7 +43,7 @@ jest.mock('./config/database', () => {
         id INTEGER PRIMARY KEY AUTOINCREMENT, room_id INTEGER NOT NULL, guest_name TEXT NOT NULL,
         guest_email TEXT NOT NULL, guest_phone TEXT NOT NULL, check_in DATE NOT NULL,
         check_out DATE NOT NULL, guests INTEGER DEFAULT 1, total_amount INTEGER NOT NULL,
-        payment_status TEXT DEFAULT 'pending', payment_id TEXT, booking_status TEXT DEFAULT 'confirmed',
+        payment_status TEXT DEFAULT 'pending', payment_id TEXT, booking_status TEXT DEFAULT 'pending',
         special_requests TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (room_id) REFERENCES rooms(id)
       );
@@ -201,7 +201,7 @@ describe('Booking', () => {
         special_requests: 'None'
       });
     expect(res.status).toBe(200);
-    expect(res.text).toContain('Booking Confirmed');
+    expect(res.text).toContain('Booking Received');
   });
 
   test('POST /booking/1 with invalid data should return 400', async () => {
