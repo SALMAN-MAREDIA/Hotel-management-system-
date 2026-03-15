@@ -1,27 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const Room = require('../models/Room');
-const Gallery = require('../models/Gallery');
-const Contact = require('../models/Contact');
+const { getAvailable, getByCategory, getById } = require('../data/rooms');
+const { getAll: getGallery } = require('../data/gallery');
 const { body, validationResult } = require('express-validator');
 const { getMailTransporter, getFromAddress, NOTIFICATION_EMAIL } = require('../utils/mailer');
 
 // Home page
 router.get('/', (req, res) => {
-  const rooms = Room.getAvailable().slice(0, 4);
+  const rooms = getAvailable().slice(0, 4);
   res.render('index', { title: 'Welcome to Hotel Oasis', currentPage: 'home', rooms });
 });
 
 // Rooms page
 router.get('/rooms', (req, res) => {
   const category = req.query.category;
-  const rooms = category ? Room.getByCategory(category) : Room.getAvailable();
+  const rooms = category ? getByCategory(category) : getAvailable();
   res.render('rooms', { title: 'Our Rooms - Hotel Oasis', currentPage: 'rooms', rooms, selectedCategory: category || 'all' });
 });
 
 // Room detail
 router.get('/rooms/:id', (req, res, next) => {
-  const room = Room.getById(parseInt(req.params.id, 10));
+  const room = getById(parseInt(req.params.id, 10));
   if (!room) {
     return next({ status: 404, message: 'Room not found' });
   }
@@ -30,7 +29,7 @@ router.get('/rooms/:id', (req, res, next) => {
 
 // Gallery page
 router.get('/gallery', (req, res) => {
-  const gallery = Gallery.getAll();
+  const gallery = getGallery();
   res.render('gallery', { title: 'Gallery - Hotel Oasis', currentPage: 'gallery', gallery });
 });
 
@@ -66,7 +65,6 @@ router.post('/contact', [
   try {
     const countryCode = req.body.country_code || '+91';
     const phoneWithCode = countryCode + req.body.phone;
-    Contact.create({ ...req.body, phone: phoneWithCode });
 
     // Send email notification to hotel owner
     const transporter = getMailTransporter();

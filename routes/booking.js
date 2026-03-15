@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const Room = require('../models/Room');
-const Booking = require('../models/Booking');
+const crypto = require('crypto');
+const { getById } = require('../data/rooms');
 const { body, validationResult } = require('express-validator');
 const { getMailTransporter, getFromAddress, NOTIFICATION_EMAIL } = require('../utils/mailer');
 
 // Booking form page
 router.get('/:roomId', (req, res, next) => {
-  const room = Room.getById(parseInt(req.params.roomId, 10));
+  const room = getById(parseInt(req.params.roomId, 10));
   if (!room) {
     return next({ status: 404, message: 'Room not found' });
   }
@@ -33,7 +33,7 @@ router.post('/:roomId', [
   body('guests').isInt({ min: 1, max: 5 }).withMessage('Guests must be between 1 and 5'),
   body('special_requests').optional({ values: 'falsy' }).trim().isLength({ max: 500 }).escape()
 ], async (req, res, next) => {
-  const room = Room.getById(parseInt(req.params.roomId, 10));
+  const room = getById(parseInt(req.params.roomId, 10));
   if (!room) {
     return next({ status: 404, message: 'Room not found' });
   }
@@ -72,20 +72,7 @@ router.post('/:roomId', [
     const countryCode = req.body.country_code || '+91';
     const guestPhone = countryCode + req.body.guest_phone;
 
-    const result = Booking.create({
-      room_id: room.id,
-      guest_name: req.body.guest_name,
-      guest_email: req.body.guest_email,
-      guest_phone: guestPhone,
-      check_in: req.body.check_in,
-      check_out: req.body.check_out,
-      guests: req.body.guests,
-      total_amount: totalAmount,
-      payment_status: 'pending',
-      special_requests: req.body.special_requests
-    });
-
-    const bookingId = result.lastInsertRowid;
+    const bookingId = crypto.randomUUID().split('-')[0].toUpperCase();
 
     // Send email notification to hotel owner
     const transporter = getMailTransporter();
