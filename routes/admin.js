@@ -316,8 +316,15 @@ router.post('/gallery/add', isAuthenticated, upload.single('image'), [
   }
 });
 
+// Rate limiter for admin write operations
+const adminWriteLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50,
+  message: 'Too many requests, please try again later'
+});
+
 // Delete gallery photo
-router.post('/gallery/:id/delete', isAuthenticated, (req, res) => {
+router.post('/gallery/:id/delete', isAuthenticated, adminWriteLimiter, (req, res) => {
   try {
     const photo = Gallery.getById(parseInt(req.params.id, 10));
     if (photo && photo.image && photo.image.startsWith('/uploads/')) {
