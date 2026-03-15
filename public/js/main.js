@@ -27,6 +27,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // Room image fallback - show gradient placeholder when image fails to load
+  document.querySelectorAll('img[data-fallback]').forEach(function (img) {
+    img.addEventListener('error', function () {
+      this.style.display = 'none';
+      var fallback = this.nextElementSibling;
+      if (fallback) fallback.style.display = 'flex';
+    });
+  });
+
   // Auto-dismiss alerts after 5 seconds
   var alerts = document.querySelectorAll('.alert-dismissible');
   alerts.forEach(function (alert) {
