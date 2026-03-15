@@ -30,7 +30,7 @@ router.post('/:roomId', [
   body('guest_name').trim().notEmpty().withMessage('Full name is required').escape(),
   body('guest_email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('guest_phone').trim().notEmpty().withMessage('Phone number is required')
-    .matches(/^\d{10}$/).withMessage('Phone must be exactly 10 digits').escape(),
+    .matches(/^\d{7,15}$/).withMessage('Phone must be between 7 and 15 digits').escape(),
   body('check_in').notEmpty().withMessage('Check-in date is required')
     .isISO8601().withMessage('Invalid check-in date'),
   body('check_out').notEmpty().withMessage('Check-out date is required')
@@ -75,7 +75,8 @@ router.post('/:roomId', [
     const baseOccupancy = room.type === 'Triple' ? 3 : room.type === 'Double' ? 2 : 1;
     const extraPersons = Math.max(0, guests - baseOccupancy);
     const totalAmount = (room.price * nights) + (extraPersons * extraPersonCharge * nights);
-    const guestPhone = '+91' + req.body.guest_phone;
+    const countryCode = req.body.country_code || '+91';
+    const guestPhone = countryCode + req.body.guest_phone;
 
     // If Stripe is configured, create a checkout session
     if (stripe) {

@@ -49,7 +49,7 @@ function initializeDatabase() {
       total_amount INTEGER NOT NULL,
       payment_status TEXT DEFAULT 'pending',
       payment_id TEXT,
-      booking_status TEXT DEFAULT 'confirmed',
+      booking_status TEXT DEFAULT 'pending',
       special_requests TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (room_id) REFERENCES rooms(id)

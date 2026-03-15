@@ -20,11 +20,12 @@ const Booking = {
       LEFT JOIN rooms r ON b.room_id = r.id
       ORDER BY
         CASE b.booking_status
-          WHEN 'checked-in' THEN 1
-          WHEN 'confirmed' THEN 2
-          WHEN 'cancelled' THEN 3
-          WHEN 'checked-out' THEN 4
-          ELSE 2
+          WHEN 'pending' THEN 1
+          WHEN 'checked-in' THEN 2
+          WHEN 'confirmed' THEN 3
+          WHEN 'cancelled' THEN 4
+          WHEN 'checked-out' THEN 5
+          ELSE 3
         END ASC,
         b.created_at DESC
     `).all();
@@ -65,8 +66,8 @@ const Booking = {
     const db = getDb();
     const currentYear = new Date().getFullYear();
     const totalBookings = db.prepare("SELECT COUNT(*) as count FROM bookings WHERE strftime('%Y', created_at) = ?").get(String(currentYear)).count;
-    const totalRevenue = db.prepare("SELECT COALESCE(SUM(total_amount), 0) as total FROM bookings WHERE payment_status IN ('paid', 'demo') AND booking_status != 'cancelled'").get().total;
-    const pendingBookings = db.prepare("SELECT COUNT(*) as count FROM bookings WHERE booking_status IN ('confirmed') AND payment_status = 'pending'").get().count;
+    const totalRevenue = db.prepare("SELECT COALESCE(SUM(total_amount), 0) as total FROM bookings WHERE booking_status = 'confirmed' AND booking_status != 'cancelled'").get().total;
+    const pendingBookings = db.prepare("SELECT COUNT(*) as count FROM bookings WHERE booking_status = 'pending'").get().count;
     const todayBookings = db.prepare("SELECT COUNT(*) as count FROM bookings WHERE DATE(check_in) = DATE('now')").get().count;
     return { totalBookings, totalRevenue, pendingBookings, todayBookings };
   }

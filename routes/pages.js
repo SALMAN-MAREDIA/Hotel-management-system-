@@ -48,7 +48,7 @@ router.post('/contact', [
   body('name').trim().notEmpty().withMessage('Name is required').escape(),
   body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('phone').trim().notEmpty().withMessage('Phone number is required')
-    .matches(/^\d{10}$/).withMessage('Phone must be exactly 10 digits').escape(),
+    .matches(/^\d{7,15}$/).withMessage('Phone must be between 7 and 15 digits').escape(),
   body('subject').trim().notEmpty().withMessage('Subject is required').escape(),
   body('message').trim().notEmpty().withMessage('Message is required').isLength({ max: 2000 }).withMessage('Message must be under 2000 characters').escape()
 ], (req, res) => {
@@ -63,7 +63,8 @@ router.post('/contact', [
   }
 
   try {
-    const phoneWithCode = '+91' + req.body.phone;
+    const countryCode = req.body.country_code || '+91';
+    const phoneWithCode = countryCode + req.body.phone;
     Contact.create({ ...req.body, phone: phoneWithCode });
     req.flash('success', 'Your message has been sent successfully! Soon we will reach out to you. Thank you for contacting Hotel Oasis.');
     res.redirect('/contact');

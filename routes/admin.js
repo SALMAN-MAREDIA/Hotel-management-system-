@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const multer = require('multer');
+const nodemailer = require('nodemailer');
 const Admin = require('../models/Admin');
 const Booking = require('../models/Booking');
 const Room = require('../models/Room');
@@ -8,6 +11,49 @@ const Gallery = require('../models/Gallery');
 const { isAuthenticated } = require('../middleware/auth');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
+
+// Configure multer for gallery image uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '..', 'public', 'uploads'));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, 'gallery-' + uniqueSuffix + ext);
+  }
+});
+
+const fileFilter = function (req, file, cb) {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only JPEG, PNG, GIF and WebP images are allowed'), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
+
+// Configure email transporter (optional - only if SMTP settings provided)
+function getMailTransporter() {
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
+  }
+  return null;
+}
 
 // Rate limiter for login
 const loginLimiter = rateLimit({
@@ -50,11 +96,20 @@ router.post('/login', loginLimiter, [
       });
     }
 
-    req.session.adminId = admin.id;
-    req.session.adminName = admin.username;
-    const returnTo = req.session.returnTo || '/admin/dashboard';
-    delete req.session.returnTo;
-    res.redirect(returnTo);
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error('Session regeneration error:', err);
+        return res.status(500).render('admin/login', {
+          title: 'Admin Login - Hotel Oasis',
+          currentPage: 'admin',
+          errors: [{ msg: 'An error occurred. Please try again.' }]
+        });
+      }
+      req.session.adminId = admin.id;
+      req.session.adminName = admin.username;
+      const returnTo = '/admin/dashboard';
+      res.redirect(returnTo);
+    });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).render('admin/login', {
@@ -118,11 +173,50 @@ router.get('/bookings', isAuthenticated, (req, res) => {
 });
 
 // Update booking status
-router.post('/bookings/:id/status', isAuthenticated, (req, res) => {
+router.post('/bookings/:id/status', isAuthenticated, async (req, res) => {
   try {
     const { status } = req.body;
     if (['confirmed', 'checked-in', 'checked-out', 'cancelled'].includes(status)) {
       Booking.updateStatus(parseInt(req.params.id, 10), status);
+
+      // Send email notification when booking is confirmed
+      if (status === 'confirmed') {
+        const booking = Booking.getById(parseInt(req.params.id, 10));
+        if (booking && booking.guest_email) {
+          const transporter = getMailTransporter();
+          if (transporter) {
+            try {
+              await transporter.sendMail({
+                from: process.env.SMTP_FROM || process.env.SMTP_USER,
+                to: booking.guest_email,
+                subject: 'Booking Confirmed - Hotel Oasis',
+                html: `
+                  <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+                    <h2 style="color:#c8a96e">Hotel Oasis - Booking Confirmed</h2>
+                    <p>Dear <strong>${booking.guest_name}</strong>,</p>
+                    <p>Your booking has been <strong>confirmed</strong>! Here are your booking details:</p>
+                    <table style="width:100%;border-collapse:collapse;margin:15px 0">
+                      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Booking ID</td><td style="padding:8px;border:1px solid #ddd">#${booking.id}</td></tr>
+                      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Room</td><td style="padding:8px;border:1px solid #ddd">${booking.room_name || 'N/A'}</td></tr>
+                      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Check-in</td><td style="padding:8px;border:1px solid #ddd">${booking.check_in}</td></tr>
+                      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Check-out</td><td style="padding:8px;border:1px solid #ddd">${booking.check_out}</td></tr>
+                      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Total Amount</td><td style="padding:8px;border:1px solid #ddd">₹${booking.total_amount.toLocaleString('en-IN')}</td></tr>
+                    </table>
+                    <p>Thank you for choosing Hotel Oasis. We look forward to welcoming you!</p>
+                    <p style="color:#888;font-size:12px">Hotel Oasis, 276, Shaheed Bhagat Singh Road, Near GPO, Fort, Mumbai-400001</p>
+                  </div>
+                `
+              });
+              req.flash('success', 'Booking confirmed and email notification sent to guest');
+            } catch (emailErr) {
+              console.error('Email sending error:', emailErr);
+              req.flash('success', 'Booking confirmed (email notification could not be sent)');
+            }
+          } else {
+            req.flash('success', 'Booking confirmed (email not configured)');
+          }
+        }
+      }
     }
     res.redirect('/admin/bookings');
   } catch (err) {
@@ -180,17 +274,6 @@ router.post('/rooms/:id/toggle', isAuthenticated, (req, res) => {
   }
 });
 
-// Delete booking
-router.post('/bookings/:id/delete', isAuthenticated, (req, res) => {
-  try {
-    Booking.delete(parseInt(req.params.id, 10));
-    res.redirect('/admin/bookings');
-  } catch (err) {
-    console.error('Delete booking error:', err);
-    res.redirect('/admin/bookings');
-  }
-});
-
 // Gallery management page
 router.get('/gallery', isAuthenticated, (req, res) => {
   try {
@@ -207,8 +290,8 @@ router.get('/gallery', isAuthenticated, (req, res) => {
   }
 });
 
-// Add gallery photo
-router.post('/gallery/add', isAuthenticated, [
+// Add gallery photo (file upload)
+router.post('/gallery/add', isAuthenticated, upload.single('image'), [
   body('title').trim().notEmpty().withMessage('Title is required').escape(),
   body('category').trim().notEmpty().withMessage('Category is required').escape()
 ], (req, res) => {
@@ -218,10 +301,11 @@ router.post('/gallery/add', isAuthenticated, [
     return res.redirect('/admin/gallery');
   }
   try {
+    const imagePath = req.file ? '/uploads/' + req.file.filename : null;
     Gallery.create({
       title: req.body.title,
       category: req.body.category,
-      image_url: req.body.image_url || null
+      image: imagePath
     });
     req.flash('success', 'Photo added to gallery');
     res.redirect('/admin/gallery');
