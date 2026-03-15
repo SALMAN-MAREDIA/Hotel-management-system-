@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const { getById } = require('../data/rooms');
 const { body, validationResult } = require('express-validator');
 const { getMailTransporter, getFromAddress, NOTIFICATION_EMAIL } = require('../utils/mailer');
@@ -71,7 +72,7 @@ router.post('/:roomId', [
     const countryCode = req.body.country_code || '+91';
     const guestPhone = countryCode + req.body.guest_phone;
 
-    const bookingId = Date.now();
+    const bookingId = crypto.randomUUID().split('-')[0].toUpperCase();
 
     // Send email notification to hotel owner
     const transporter = getMailTransporter();
