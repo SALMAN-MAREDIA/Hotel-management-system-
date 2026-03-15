@@ -68,8 +68,13 @@
     <div class="row align-items-center g-5">
       <div class="col-lg-6">
         <div class="position-relative">
-          <div class="about-img-placeholder rounded-4 shadow-lg" style="height:400px;overflow:hidden">
-            <img src="/images/reception.jpg" alt="Hotel Oasis Reception" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=&quot;height:400px;background:linear-gradient(135deg,#c8a96e 0%,#8B6914 100%);display:flex;align-items:center;justify-content:center&quot;><div class=&quot;text-center text-white&quot;><i class=&quot;bi bi-building display-1 mb-3&quot;></i><h3>Since 1985</h3><p>Over 38 Years of Excellence</p></div></div>'">
+          <div class="about-img-placeholder rounded-4 shadow-lg" style="height:400px;overflow:hidden;background:linear-gradient(135deg,#c8a96e 0%,#8B6914 100%);display:flex;align-items:center;justify-content:center">
+            <img src="/images/reception.jpg" alt="Hotel Oasis Reception" style="width:100%;height:100%;object-fit:cover" class="fallback-img">
+            <div class="fallback-content text-center text-white" style="position:absolute">
+              <i class="bi bi-building display-1 mb-3"></i>
+              <h3>Since 1985</h3>
+              <p>Over 38 Years of Excellence</p>
+            </div>
           </div>
           <div class="position-absolute bottom-0 end-0 bg-warning text-dark p-3 rounded-3 shadow m-3">
             <h4 class="mb-0 fw-bold">32</h4>
@@ -169,8 +174,9 @@
     <div class="row g-4">
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div style="height:180px;overflow:hidden">
-            <img src="/images/gateway-of-india.jpg" alt="Gateway of India" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=&quot;height:180px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center&quot;><i class=&quot;bi bi-bank2 display-3 text-white&quot;></i></div>'">
+          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;position:relative">
+            <img src="/images/gateway-of-india.jpg" alt="Gateway of India" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
+            <i class="bi bi-bank2 display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
           <div class="card-body p-4">
             <h5 class="fw-bold">Gateway of India</h5>
@@ -181,8 +187,9 @@
       </div>
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div style="height:180px;overflow:hidden">
-            <img src="/images/cst-mumbai.jpg" alt="Chhatrapati Shivaji Terminus" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=&quot;height:180px;background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);display:flex;align-items:center;justify-content:center&quot;><i class=&quot;bi bi-train-front display-3 text-white&quot;></i></div>'">
+          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);display:flex;align-items:center;justify-content:center;position:relative">
+            <img src="/images/cst-mumbai.jpg" alt="Chhatrapati Shivaji Terminus" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
+            <i class="bi bi-train-front display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
           <div class="card-body p-4">
             <h5 class="fw-bold">Chhatrapati Shivaji Terminus</h5>
@@ -193,8 +200,9 @@
       </div>
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div style="height:180px;overflow:hidden">
-            <img src="/images/marine-drive.jpg" alt="Marine Drive" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=&quot;height:180px;background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);display:flex;align-items:center;justify-content:center&quot;><i class=&quot;bi bi-water display-3 text-white&quot;></i></div>'">
+          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);display:flex;align-items:center;justify-content:center;position:relative">
+            <img src="/images/marine-drive.jpg" alt="Marine Drive" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
+            <i class="bi bi-water display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
           <div class="card-body p-4">
             <h5 class="fw-bold">Marine Drive</h5>
@@ -205,8 +213,9 @@
       </div>
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div style="height:180px;overflow:hidden">
-            <img src="/images/flora-fountain.jpg" alt="Flora Fountain" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=&quot;height:180px;background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);display:flex;align-items:center;justify-content:center&quot;><i class=&quot;bi bi-building display-3 text-white&quot;></i></div>'">
+          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);display:flex;align-items:center;justify-content:center;position:relative">
+            <img src="/images/flora-fountain.jpg" alt="Flora Fountain" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
+            <i class="bi bi-building display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
           <div class="card-body p-4">
             <h5 class="fw-bold">Flora Fountain</h5>
@@ -217,8 +226,9 @@
       </div>
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div style="height:180px;overflow:hidden">
-            <img src="/images/elephanta-caves.jpg" alt="Elephanta Caves" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=&quot;height:180px;background:linear-gradient(135deg,#fa709a 0%,#fee140 100%);display:flex;align-items:center;justify-content:center&quot;><i class=&quot;bi bi-image display-3 text-white&quot;></i></div>'">
+          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#fa709a 0%,#fee140 100%);display:flex;align-items:center;justify-content:center;position:relative">
+            <img src="/images/elephanta-caves.jpg" alt="Elephanta Caves" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
+            <i class="bi bi-image display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
           <div class="card-body p-4">
             <h5 class="fw-bold">Elephanta Caves</h5>
@@ -229,8 +239,9 @@
       </div>
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div style="height:180px;overflow:hidden">
-            <img src="/images/csmvs-museum.jpg" alt="Chhatrapati Shivaji Maharaj Vastu Sangrahalaya" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=&quot;height:180px;background:linear-gradient(135deg,#a18cd1 0%,#fbc2eb 100%);display:flex;align-items:center;justify-content:center&quot;><i class=&quot;bi bi-columns-gap display-3 text-white&quot;></i></div>'">
+          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#a18cd1 0%,#fbc2eb 100%);display:flex;align-items:center;justify-content:center;position:relative">
+            <img src="/images/csmvs-museum.jpg" alt="Chhatrapati Shivaji Maharaj Vastu Sangrahalaya" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
+            <i class="bi bi-columns-gap display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
           <div class="card-body p-4">
             <h5 class="fw-bold">Chhatrapati Shivaji Maharaj Vastu Sangrahalaya</h5>

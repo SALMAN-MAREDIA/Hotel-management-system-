@@ -200,7 +200,7 @@ router.post('/bookings/:id/status', isAuthenticated, async (req, res) => {
                       <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Room</td><td style="padding:8px;border:1px solid #ddd">${booking.room_name || 'N/A'}</td></tr>
                       <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Check-in</td><td style="padding:8px;border:1px solid #ddd">${booking.check_in}</td></tr>
                       <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Check-out</td><td style="padding:8px;border:1px solid #ddd">${booking.check_out}</td></tr>
-                      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Total Amount</td><td style="padding:8px;border:1px solid #ddd">₹${booking.total_amount.toLocaleString('en-IN')}</td></tr>
+                      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Total Amount</td><td style="padding:8px;border:1px solid #ddd">₹${booking.total_amount ? booking.total_amount.toLocaleString('en-IN') : '0'}</td></tr>
                     </table>
                     <p>Thank you for choosing Hotel Oasis. We look forward to welcoming you!</p>
                     <p style="color:#888;font-size:12px">Hotel Oasis, 276, Shaheed Bhagat Singh Road, Near GPO, Fort, Mumbai-400001</p>
@@ -319,6 +319,14 @@ router.post('/gallery/add', isAuthenticated, upload.single('image'), [
 // Delete gallery photo
 router.post('/gallery/:id/delete', isAuthenticated, (req, res) => {
   try {
+    const photo = Gallery.getById(parseInt(req.params.id, 10));
+    if (photo && photo.image && photo.image.startsWith('/uploads/')) {
+      const filePath = path.join(__dirname, '..', 'public', photo.image);
+      const fs = require('fs');
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
     Gallery.delete(parseInt(req.params.id, 10));
     req.flash('success', 'Photo removed from gallery');
     res.redirect('/admin/gallery');
