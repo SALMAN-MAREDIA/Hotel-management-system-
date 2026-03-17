@@ -48,7 +48,7 @@ router.post('/contact', [
   body('name').trim().notEmpty().withMessage('Name is required').escape(),
   body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('phone').trim().notEmpty().withMessage('Phone number is required')
-    .matches(/^\d{7,15}$/).withMessage('Phone must be between 7 and 15 digits').escape(),
+    .matches(/^\d{10}$/).withMessage('Phone must be exactly 10 digits').escape(),
   body('subject').trim().notEmpty().withMessage('Subject is required').escape(),
   body('message').trim().notEmpty().withMessage('Message is required').isLength({ max: 2000 }).withMessage('Message must be under 2000 characters').escape()
 ], async (req, res) => {

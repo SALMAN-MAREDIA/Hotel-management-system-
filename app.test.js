@@ -194,16 +194,28 @@ describe('Security and Rate Limiting', () => {
     expect(second.text).toContain('Too many form submissions');
 
     process.env = originalEnv;
-  });
+  }, 15000);
 
   test('should throw in production when SESSION_SECRET is missing', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const envPath = path.join(__dirname, '.env');
+    const envBackup = envPath + '.bak';
     const originalEnv = { ...process.env };
-    jest.resetModules();
-    process.env = { ...originalEnv, NODE_ENV: 'production' };
-    delete process.env.SESSION_SECRET;
 
-    expect(() => require('./app')).toThrow('SESSION_SECRET must be set in production.');
+    // Temporarily hide .env so dotenv cannot reload SESSION_SECRET
+    if (fs.existsSync(envPath)) fs.renameSync(envPath, envBackup);
 
-    process.env = originalEnv;
+    try {
+      process.env = { ...originalEnv, NODE_ENV: 'production' };
+      delete process.env.SESSION_SECRET;
+
+      jest.isolateModules(() => {
+        expect(() => require('./app')).toThrow('SESSION_SECRET must be set in production.');
+      });
+    } finally {
+      process.env = originalEnv;
+      if (fs.existsSync(envBackup)) fs.renameSync(envBackup, envPath);
+    }
   });
 });

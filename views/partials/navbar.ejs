@@ -1,30 +1,31 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow" id="main-navbar">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="/">
+    <a class="navbar-brand d-flex align-items-center" href="/" id="navbar-brand">
       <i class="bi bi-building me-2 text-warning"></i>
       <span class="brand-text">Hotel <span class="text-warning">Oasis</span></span>
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" id="navbar-toggler">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link <%= currentPage === 'home' ? 'active' : '' %>" href="/"><i class="bi bi-house-door me-1"></i>Home</a>
+          <a class="nav-link <%= currentPage === 'home' ? 'active' : '' %>" href="/" id="nav-home"><i class="bi bi-house-door me-1"></i>Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <%= currentPage === 'rooms' ? 'active' : '' %>" href="/rooms"><i class="bi bi-door-open me-1"></i>Rooms</a>
+          <a class="nav-link <%= currentPage === 'rooms' ? 'active' : '' %>" href="/rooms" id="nav-rooms"><i class="bi bi-door-open me-1"></i>Rooms</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <%= currentPage === 'gallery' ? 'active' : '' %>" href="/gallery"><i class="bi bi-images me-1"></i>Gallery</a>
+          <a class="nav-link <%= currentPage === 'gallery' ? 'active' : '' %>" href="/gallery" id="nav-gallery"><i class="bi bi-images me-1"></i>Gallery</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <%= currentPage === 'about' ? 'active' : '' %>" href="/about"><i class="bi bi-info-circle me-1"></i>About Us</a>
+          <a class="nav-link <%= currentPage === 'about' ? 'active' : '' %>" href="/about" id="nav-about"><i class="bi bi-info-circle me-1"></i>About Us</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <%= currentPage === 'contact' ? 'active' : '' %>" href="/contact"><i class="bi bi-envelope me-1"></i>Contact</a>
+          <a class="nav-link <%= currentPage === 'contact' ? 'active' : '' %>" href="/contact" id="nav-contact"><i class="bi bi-envelope me-1"></i>Contact</a>
         </li>
       </ul>
     </div>
   </div>
 </nav>
+<div class="navbar-backdrop" id="navbar-backdrop"></div>

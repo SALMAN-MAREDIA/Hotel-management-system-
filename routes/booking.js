@@ -25,7 +25,7 @@ router.post('/:roomId', [
   body('guest_name').trim().notEmpty().withMessage('Full name is required').escape(),
   body('guest_email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('guest_phone').trim().notEmpty().withMessage('Phone number is required')
-    .matches(/^\d{7,15}$/).withMessage('Phone must be between 7 and 15 digits').escape(),
+    .matches(/^\d{10}$/).withMessage('Phone must be exactly 10 digits').escape(),
   body('check_in').notEmpty().withMessage('Check-in date is required')
     .isISO8601().withMessage('Invalid check-in date'),
   body('check_out').notEmpty().withMessage('Check-out date is required')

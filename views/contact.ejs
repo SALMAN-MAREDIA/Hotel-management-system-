@@ -13,7 +13,7 @@
   </div>
 </section>
 
-<section class="py-5">
+<section class="py-5 reveal-on-scroll">
   <div class="container">
     <div class="row g-5">
       <!-- Contact Info -->
@@ -148,7 +148,7 @@
                       <option value="+92">+92 🇵🇰</option>
                       <option value="+254">+254 🇰🇪</option>
                     </select>
-                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="Phone number" required pattern="[0-9]{7,15}" maxlength="15" title="Enter phone number (7-15 digits)" value="<%= typeof formData !== 'undefined' && formData.phone ? formData.phone : '' %>">
+                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="10-digit phone number" required pattern="[0-9]{10}" maxlength="10" minlength="10" title="Enter exactly 10 digits" value="<%= typeof formData !== 'undefined' && formData.phone ? formData.phone : '' %>">
                   </div>
                   <small class="text-muted">Select country code and enter phone number</small>
                 </div>
