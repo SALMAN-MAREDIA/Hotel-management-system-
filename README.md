@@ -1,6 +1,6 @@
 # Hotel Oasis - Hotel Management System
 
-A full-stack hotel management system for Hotel Oasis, Mumbai. Built with Node.js, Express, EJS, and SQLite.
+A hotel website for Hotel Oasis, Mumbai. Built with Node.js, Express, and EJS templates.
 
 ## Features
 
@@ -8,15 +8,15 @@ A full-stack hotel management system for Hotel Oasis, Mumbai. Built with Node.js
 - **Room Booking**: Complete booking flow with "Reserve Room" button — booking details sent via email
 - **Email Notifications**: Booking requests and contact form submissions are sent directly to the hotel owner's email
 - **WhatsApp Integration**: Floating WhatsApp icon for quick contact
-- **Security**: Helmet, rate limiting, input validation, session management
+- **Security**: Helmet, server-side validation, sessions, and rate limiting
 - **Responsive Design**: Bootstrap 5 with modern custom styling for all screen sizes
 
 ## Tech Stack
 
 - **Backend**: Node.js, Express 5
 - **Templates**: EJS
-- **Database**: SQLite (via better-sqlite3)
-- **Security**: Helmet, bcryptjs, express-validator, express-rate-limit
+- **Data**: In-memory/static room and gallery data
+- **Security**: Helmet, express-validator, express-rate-limit, express-session
 - **Email**: Nodemailer (SMTP / Gmail)
 - **Frontend**: Bootstrap 5, Bootstrap Icons, Custom CSS
 
@@ -33,18 +33,47 @@ cp .env.example .env   # Edit .env with your settings
 npm start              # Server runs on http://localhost:3000
 ```
 
+### Environment Variables & Secrets
+
+Keep all secrets in backend `.env` only. Do **not** put SMTP credentials, session secrets, or other keys in frontend code.
+
+```env
+PORT=3000
+SESSION_SECRET=replace-with-long-random-secret
+NOTIFICATION_EMAIL=owner@example.com
+TRUST_PROXY=true
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=300
+FORM_RATE_LIMIT_WINDOW_MS=900000
+FORM_RATE_LIMIT_MAX=20
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+SMTP_FROM=Hotel Oasis <your-email@gmail.com>
+```
+
 ### Email Configuration
 
 Configure SMTP settings in `.env` to receive booking and contact form notifications:
 
 ```
-NOTIFICATION_EMAIL=marediasalman0@gmail.com
+NOTIFICATION_EMAIL=owner@example.com
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
 SMTP_FROM=Hotel Oasis <your-email@gmail.com>
 ```
+
+### Deployment, Load Handling & Rate Limiting
+
+- Set `NODE_ENV=production`.
+- Set `TRUST_PROXY=true` when deploying behind Nginx/Cloudflare/Render/Heroku so client IP-based rate limiting works correctly.
+- Global limiter protects the whole app (`RATE_LIMIT_*`).
+- Stricter limiter protects booking and contact submissions (`FORM_RATE_LIMIT_*`).
+- Keep `SESSION_SECRET` and SMTP credentials only in server environment variables.
 
 ### Running Tests
 
