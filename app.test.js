@@ -145,3 +145,45 @@ describe('WhatsApp Integration', () => {
     expect(res.text).toContain('whatsapp');
   });
 });
+
+describe('Security and Rate Limiting', () => {
+  test('POST /contact should return 429 after rate limit is exceeded', async () => {
+    const originalEnv = { ...process.env };
+    jest.resetModules();
+    process.env = {
+      ...originalEnv,
+      SESSION_SECRET: 'test-secret',
+      FORM_RATE_LIMIT_MAX: '1',
+      FORM_RATE_LIMIT_WINDOW_MS: '60000'
+    };
+
+    const limitedApp = require('./app');
+    const payload = {
+      name: 'Test User',
+      email: 'test@example.com',
+      phone: '1234567890',
+      subject: 'Test Subject',
+      message: 'This is a test message'
+    };
+
+    const first = await request(limitedApp).post('/contact').type('form').send(payload);
+    expect(first.status).toBe(302);
+
+    const second = await request(limitedApp).post('/contact').type('form').send(payload);
+    expect(second.status).toBe(429);
+    expect(second.text).toContain('Too many form submissions');
+
+    process.env = originalEnv;
+  });
+
+  test('should throw in production when SESSION_SECRET is missing', () => {
+    const originalEnv = { ...process.env };
+    jest.resetModules();
+    process.env = { ...originalEnv, NODE_ENV: 'production' };
+    delete process.env.SESSION_SECRET;
+
+    expect(() => require('./app')).toThrow('SESSION_SECRET must be set in production.');
+
+    process.env = originalEnv;
+  });
+});
