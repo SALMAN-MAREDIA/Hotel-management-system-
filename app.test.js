@@ -146,6 +146,26 @@ describe('WhatsApp Integration', () => {
   });
 });
 
+describe('Responsive Markup', () => {
+  test('home page should include responsive hero and feature grid classes', async () => {
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('hero-row');
+    expect(res.text).toContain('col-lg-3 col-md-6 col-sm-6 col-12');
+  });
+
+  test('booking and contact forms should use responsive country code select class', async () => {
+    const bookingRes = await request(app).get('/booking/1');
+    expect(bookingRes.status).toBe(200);
+    expect(bookingRes.text).toContain('country-code-select');
+    expect(bookingRes.text).toContain('booking-summary-card');
+
+    const contactRes = await request(app).get('/contact');
+    expect(contactRes.status).toBe(200);
+    expect(contactRes.text).toContain('country-code-select');
+  });
+});
+
 describe('Security and Rate Limiting', () => {
   test('POST /contact should return 429 after rate limit is exceeded', async () => {
     const originalEnv = { ...process.env };

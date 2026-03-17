@@ -96,6 +96,10 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 2;
 }
 
+.hero-row {
+  min-height: 100vh;
+}
+
 .animate-fade-in {
   animation: fadeInUp 1s ease forwards;
   opacity: 0;
@@ -180,6 +184,7 @@ section {
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  aspect-ratio: 4 / 3;
 }
 
 .room-card:hover .room-card-img {
@@ -213,6 +218,36 @@ section {
   transform: scale(0.8);
   position: absolute;
   pointer-events: none;
+}
+
+.gallery-img {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.tourist-img-container {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.about-preview-media {
+  aspect-ratio: 5 / 4;
+}
+
+.about-hero-media {
+  aspect-ratio: 4 / 3;
+}
+
+.booking-summary-card {
+  top: 100px;
+}
+
+.booking-summary-media {
+  aspect-ratio: 16 / 10;
+}
+
+.country-code-select {
+  max-width: 120px;
 }
 
 /* ===== WhatsApp Float ===== */
@@ -402,7 +437,18 @@ section {
 }
 
 /* ===== Responsive ===== */
+@media (max-width: 992px) {
+  .booking-summary-card {
+    position: static !important;
+    top: auto !important;
+  }
+}
+
 @media (max-width: 768px) {
+  .hero-row {
+    min-height: 85vh;
+  }
+
   .hero-section h1 {
     font-size: 2.5rem;
   }
@@ -423,15 +469,37 @@ section {
     padding: 0.6rem 1.5rem;
     font-size: 0.95rem;
   }
+
+  .card-body.p-5 {
+    padding: 1.75rem !important;
+  }
 }
 
 @media (max-width: 576px) {
+  .hero-row {
+    min-height: 80vh;
+  }
+
   .hero-section h1 {
     font-size: 2rem;
   }
 
   .brand-text {
     font-size: 1.2rem;
+  }
+
+  .hero-section .btn {
+    width: 100%;
+    margin: 0.4rem 0 !important;
+  }
+
+  .country-code-select {
+    max-width: 95px;
+    font-size: 0.85rem;
+  }
+
+  .card-body.p-5 {
+    padding: 1.25rem !important;
   }
 }
 

@@ -19,8 +19,8 @@
     <div class="row g-5">
       <!-- Room Summary -->
       <div class="col-lg-4">
-        <div class="card border-0 shadow rounded-4 sticky-top" style="top:100px">
-          <div class="room-card-img" style="height:180px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;border-radius:1rem 1rem 0 0">
+        <div class="card border-0 shadow rounded-4 sticky-top booking-summary-card">
+          <div class="room-card-img booking-summary-media" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;border-radius:1rem 1rem 0 0">
             <div class="text-center text-white">
               <i class="bi bi-door-open display-4"></i>
               <p class="mt-2 mb-0 fw-bold"><%= room.category %></p>
@@ -103,7 +103,7 @@
                   <label for="guest_phone" class="form-label fw-bold">Phone <span class="text-danger">*</span></label>
                   <div class="input-group">
                     <span class="input-group-text bg-warning border-0"><i class="bi bi-phone-fill text-dark"></i></span>
-                    <select class="form-select" name="country_code" id="country_code" style="max-width:120px">
+                    <select class="form-select country-code-select" name="country_code" id="country_code">
                       <option value="+91" selected>+91 🇮🇳</option>
                       <option value="+1">+1 🇺🇸</option>
                       <option value="+44">+44 🇬🇧</option>
