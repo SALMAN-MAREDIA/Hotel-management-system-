@@ -4,7 +4,7 @@
 <section class="hero-section">
   <div class="hero-overlay"></div>
   <div class="container hero-content">
-    <div class="row align-items-center min-vh-100">
+    <div class="row align-items-center hero-row">
       <div class="col-lg-8 mx-auto text-center text-white">
         <h5 class="text-warning fw-light mb-3 animate-fade-in">★★★★★ PREMIUM HOTEL</h5>
         <h1 class="display-3 fw-bold mb-4 animate-fade-in">Welcome to<br><span class="text-warning">Hotel Oasis</span></h1>
@@ -22,7 +22,7 @@
 <section class="py-5 bg-light">
   <div class="container">
     <div class="row g-4 text-center">
-      <div class="col-md-3 col-6">
+      <div class="col-lg-3 col-md-6 col-sm-6 col-12">
         <div class="feature-card p-4 bg-white rounded-4 shadow-sm h-100">
           <div class="feature-icon bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:70px;height:70px">
             <i class="bi bi-wifi fs-2 text-warning"></i>
@@ -31,7 +31,7 @@
           <p class="text-muted small mb-0">High-speed internet in all rooms</p>
         </div>
       </div>
-      <div class="col-md-3 col-6">
+      <div class="col-lg-3 col-md-6 col-sm-6 col-12">
         <div class="feature-card p-4 bg-white rounded-4 shadow-sm h-100">
           <div class="feature-icon bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:70px;height:70px">
             <i class="bi bi-snow fs-2 text-warning"></i>
@@ -40,7 +40,7 @@
           <p class="text-muted small mb-0">32 A/C rooms available</p>
         </div>
       </div>
-      <div class="col-md-3 col-6">
+      <div class="col-lg-3 col-md-6 col-sm-6 col-12">
         <div class="feature-card p-4 bg-white rounded-4 shadow-sm h-100">
           <div class="feature-icon bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:70px;height:70px">
             <i class="bi bi-tv fs-2 text-warning"></i>
@@ -49,7 +49,7 @@
           <p class="text-muted small mb-0">Colour TV with satellite channels</p>
         </div>
       </div>
-      <div class="col-md-3 col-6">
+      <div class="col-lg-3 col-md-6 col-sm-6 col-12">
         <div class="feature-card p-4 bg-white rounded-4 shadow-sm h-100">
           <div class="feature-icon bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:70px;height:70px">
             <i class="bi bi-clock fs-2 text-warning"></i>
@@ -68,7 +68,7 @@
     <div class="row align-items-center g-5">
       <div class="col-lg-6">
         <div class="position-relative">
-          <div class="about-img-placeholder rounded-4 shadow-lg" style="height:400px;overflow:hidden;background:linear-gradient(135deg,#c8a96e 0%,#8B6914 100%);display:flex;align-items:center;justify-content:center">
+          <div class="about-img-placeholder rounded-4 shadow-lg about-preview-media" style="overflow:hidden;background:linear-gradient(135deg,#c8a96e 0%,#8B6914 100%);display:flex;align-items:center;justify-content:center">
             <img src="/images/reception.jpg" alt="Hotel Oasis Reception" style="width:100%;height:100%;object-fit:cover" class="fallback-img">
             <div class="fallback-content text-center text-white" style="position:absolute">
               <i class="bi bi-building display-1 mb-3"></i>
@@ -131,7 +131,7 @@
       <% rooms.forEach(room => { %>
         <div class="col-lg-3 col-md-6">
           <div class="card room-card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-            <div class="room-card-img" style="height:200px;overflow:hidden">
+            <div class="room-card-img">
               <% if (room.image) { %>
                 <img src="<%= room.image %>" alt="<%= room.name %>" data-fallback style="width:100%;height:100%;object-fit:cover">
                 <div style="display:none;height:100%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);align-items:center;justify-content:center">
@@ -186,7 +186,7 @@
     <div class="row g-4">
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;position:relative">
+          <div class="tourist-img-container" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;position:relative">
             <img src="/images/gateway-of-india.jpg" alt="Gateway of India" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
             <i class="bi bi-bank2 display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
@@ -199,7 +199,7 @@
       </div>
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);display:flex;align-items:center;justify-content:center;position:relative">
+          <div class="tourist-img-container" style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);display:flex;align-items:center;justify-content:center;position:relative">
             <img src="/images/cst-mumbai.jpg" alt="Chhatrapati Shivaji Terminus" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
             <i class="bi bi-train-front display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
@@ -212,7 +212,7 @@
       </div>
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);display:flex;align-items:center;justify-content:center;position:relative">
+          <div class="tourist-img-container" style="background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);display:flex;align-items:center;justify-content:center;position:relative">
             <img src="/images/marine-drive.jpg" alt="Marine Drive" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
             <i class="bi bi-water display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
@@ -225,7 +225,7 @@
       </div>
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);display:flex;align-items:center;justify-content:center;position:relative">
+          <div class="tourist-img-container" style="background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);display:flex;align-items:center;justify-content:center;position:relative">
             <img src="/images/flora-fountain.jpg" alt="Flora Fountain" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
             <i class="bi bi-building display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
@@ -238,7 +238,7 @@
       </div>
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#fa709a 0%,#fee140 100%);display:flex;align-items:center;justify-content:center;position:relative">
+          <div class="tourist-img-container" style="background:linear-gradient(135deg,#fa709a 0%,#fee140 100%);display:flex;align-items:center;justify-content:center;position:relative">
             <img src="/images/elephanta-caves.jpg" alt="Elephanta Caves" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
             <i class="bi bi-image display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
@@ -251,7 +251,7 @@
       </div>
       <div class="col-lg-4 col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-          <div class="tourist-img-container" style="height:180px;overflow:hidden;background:linear-gradient(135deg,#a18cd1 0%,#fbc2eb 100%);display:flex;align-items:center;justify-content:center;position:relative">
+          <div class="tourist-img-container" style="background:linear-gradient(135deg,#a18cd1 0%,#fbc2eb 100%);display:flex;align-items:center;justify-content:center;position:relative">
             <img src="/images/csmvs-museum.jpg" alt="Chhatrapati Shivaji Maharaj Vastu Sangrahalaya" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" class="fallback-img">
             <i class="bi bi-columns-gap display-3 text-white" style="position:absolute;z-index:0"></i>
           </div>
